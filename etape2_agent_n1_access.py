@@ -30,6 +30,45 @@ load_dotenv()  # lit le fichier .env
 AGENT = os.getenv("HAI_AGENT", "h/web-surfer-pro")
 DATASET = Path("data/tickets_n1.json")
 
+# Mode d'exécution :
+#   "cloud" (défaut) -> agent pré-construit sur navigateur hébergé par H.
+#                       Simple, mais bloqué par les anti-bots (Cloudflare) au login.
+#   "local"          -> agent custom pilotant TON Chrome local (host=user_device).
+#                       Passe Cloudflare, mais les clics SYNTHÉTIQUES ne déclenchent
+#                       pas certains boutons Vue.js (ex. « Invite members » GitLab).
+#   "desktop"        -> agent custom pilotant le BUREAU (vraie souris/clavier, mode
+#                       visuel). Les clics sont de VRAIS événements OS -> ils
+#                       réveillent les boutons Vue.js. Nécessite les permissions
+#                       macOS (Accessibilité + Enregistrement de l'écran).
+MODE = os.getenv("HAI_RUN_MODE", "cloud").lower()
+
+
+def obtenir_agent(client: Client):
+    """Retourne l'agent selon le mode (string cloud, ou agent custom local/desktop)."""
+    if MODE == "local":
+        nom = os.getenv("HAI_LOCAL_AGENT", "tickai-n1-local")
+        try:
+            return client.agents.create_agent(
+                name=nom,
+                description="Agent N1 Tick.AI pilotant le navigateur local (user_device).",
+                environments=[{"id": "poste", "kind": "web", "host": "user_device"}],
+            )
+        except Exception as e:  # noqa: BLE001 — agent déjà créé lors d'un run précédent
+            print(f"(agent local déjà présent, réutilisation par nom « {nom} » : {e})")
+            return nom
+    if MODE == "desktop":
+        nom = os.getenv("HAI_DESKTOP_AGENT", "tickai-n1-desktop")
+        try:
+            return client.agents.create_agent(
+                name=nom,
+                description="Agent N1 Tick.AI pilotant le bureau local (mode visuel, vrais clics).",
+                environments=[{"id": "poste", "kind": "desktop"}],
+            )
+        except Exception as e:  # noqa: BLE001 — agent déjà créé lors d'un run précédent
+            print(f"(agent desktop déjà présent, réutilisation par nom « {nom} » : {e})")
+            return nom
+    return AGENT  # cloud, agent pré-construit
+
 
 # ---------------------------------------------------------------------------
 # 1) Le ticket entrant (dataset fictif — à remplacer par le portail de tickets)
@@ -93,13 +132,18 @@ class ResultatVerification(BaseModel):
 # 4) Consignes données à l'agent (spécifiques GitLab)
 # ---------------------------------------------------------------------------
 def _bloc_connexion() -> str:
-    """Consigne de connexion si des identifiants de test sont fournis."""
+    """Consigne de connexion selon le mode d'exécution."""
+    if MODE in ("local", "desktop"):
+        # Navigateur déjà authentifié par l'humain : aucun identifiant à passer.
+        return "Le navigateur Google Chrome ouvert à l'écran est déjà connecté à GitLab. "
     email = os.getenv("GITLAB_EMAIL")
     mdp = os.getenv("GITLAB_PASSWORD")
     if email and mdp:
+        # Mode cloud : on injecte réellement les identifiants (corrige le bug où la
+        # valeur du mot de passe n'était jamais transmise à l'agent).
         return (
-            f"Si une connexion est demandée, connecte-toi avec l'identifiant "
-            f"« {email} » et le mot de passe fourni. "
+            f"Si une page de connexion s'affiche, connecte-toi avec l'email "
+            f"« {email} » et le mot de passe « {mdp} ». "
         )
     return "Le navigateur est déjà connecté au compte d'administration. "
 
@@ -164,7 +208,7 @@ def _champ(answer, nom: str, defaut):
 # ---------------------------------------------------------------------------
 # 6) Traitement d'UN ticket (la boucle démo complète)
 # ---------------------------------------------------------------------------
-def traiter_ticket(client: Client, ticket: Ticket, console_url: str, groupe: str) -> dict:
+def traiter_ticket(client: Client, ticket: Ticket, console_url: str, groupe: str, agent) -> dict:
     debut = time.time()
     print(f"\n===== Ticket {ticket.id} — {ticket.logiciel} / {ticket.role} =====")
 
@@ -191,7 +235,7 @@ def traiter_ticket(client: Client, ticket: Ticket, console_url: str, groupe: str
 
     # --- Étape B : l'agent invite l'utilisateur au groupe GitLab ---
     creation = client.run_session(
-        agent=AGENT,
+        agent=agent,
         messages=consigne_creation(ticket, console_url, groupe),
         answer_schema=ResultatCreation,
     )
@@ -201,7 +245,7 @@ def traiter_ticket(client: Client, ticket: Ticket, console_url: str, groupe: str
     # --- Étape C : vérification INDÉPENDANTE (session séparée, lecture seule) ---
     # On ne se fie pas à ce que l'agent a annoncé : on relit l'état réel.
     verif = client.run_session(
-        agent=AGENT,
+        agent=agent,
         messages=consigne_verification(ticket, console_url, groupe),
         answer_schema=ResultatVerification,
     )
@@ -268,15 +312,22 @@ def main() -> None:
         )
 
     client = Client()  # lit HAI_API_KEY
+    agent = obtenir_agent(client)
     tickets = charger_tickets()
-    print(f"{len(tickets)} ticket(s) à traiter · agent={AGENT} · groupe={groupe}")
+    etiquettes = {
+        "cloud": AGENT,
+        "local": "tickai-n1-local (user_device)",
+        "desktop": "tickai-n1-desktop (bureau, vrais clics)",
+    }
+    etiquette = etiquettes.get(MODE, AGENT)
+    print(f"{len(tickets)} ticket(s) · mode={MODE} · agent={etiquette} · groupe={groupe}")
 
     # Chaque ticket est isolé : un échec/exception (réseau, AnswerValidationError,
     # session interrompue…) est tracé mais n'interrompt pas le reste du batch.
     resultats: list[dict] = []
     for t in tickets:
         try:
-            resultats.append(traiter_ticket(client, t, console_url, groupe))
+            resultats.append(traiter_ticket(client, t, console_url, groupe, agent))
         except Exception as e:  # noqa: BLE001 — on veut continuer la démo
             duree = 0.0
             entree = {
