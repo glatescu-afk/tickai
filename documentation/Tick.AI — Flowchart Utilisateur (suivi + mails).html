@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tick.AI — Flowchart utilisateur (suivi + mails)</title>
+<style>
+:root{--bg:#FFFFFF;--tx:#2C2C2A;--tx2:#5F5E5A;--arr:#888780;--border-strong:#B4B2A9;--surface-1:#FFFFFF;--surface-2:#F1EFE8;--bg-accent:#E6F1FB;--border-accent:#185FA5;--text-accent:#185FA5}
+@media (prefers-color-scheme:dark){:root{--bg:#1F1E1D;--tx:#F1EFE8;--tx2:#B4B2A9;--arr:#B4B2A9;--border-strong:#5F5E5A;--surface-1:#2C2C2A;--surface-2:#444441;--bg-accent:#0C447C;--border-accent:#85B7EB;--text-accent:#B5D4F4}}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px}
+h1{font-size:22px;font-weight:500;margin:0 0 4px}
+p.sub{margin:0 0 16px;color:var(--tx2);font-size:14px}
+svg{width:100%;height:auto;display:block}
+.th{font-size:14px;font-weight:500;fill:var(--tx)}
+.ts{font-size:12px;fill:var(--tx2)}
+.arr{stroke:var(--arr);stroke-width:1.5;fill:none}
+.c-purple rect{fill:#EEEDFE;stroke:#534AB7}.c-purple .th{fill:#3C3489}.c-purple .ts{fill:#534AB7}
+.c-teal rect{fill:#E1F5EE;stroke:#0F6E56}.c-teal .th{fill:#085041}.c-teal .ts{fill:#0F6E56}
+.c-coral rect{fill:#FAECE7;stroke:#993C1D}.c-coral .th{fill:#712B13}.c-coral .ts{fill:#993C1D}
+.c-amber rect{fill:#FAEEDA;stroke:#854F0B}.c-amber .th{fill:#633806}.c-amber .ts{fill:#854F0B}
+.c-blue rect{fill:#E6F1FB;stroke:#185FA5}.c-blue .th{fill:#0C447C}.c-blue .ts{fill:#185FA5}
+.c-green rect{fill:#EAF3DE;stroke:#3B6D11}.c-green .th{fill:#27500A}.c-green .ts{fill:#3B6D11}
+.c-gray rect{fill:#F1EFE8;stroke:#5F5E5A}.c-gray .th{fill:#444441}.c-gray .ts{fill:#5F5E5A}
+@media (prefers-color-scheme:dark){
+.c-purple rect{fill:#3C3489;stroke:#AFA9EC}.c-purple .th{fill:#CECBF6}.c-purple .ts{fill:#AFA9EC}
+.c-teal rect{fill:#085041;stroke:#5DCAA5}.c-teal .th{fill:#9FE1CB}.c-teal .ts{fill:#5DCAA5}
+.c-coral rect{fill:#712B13;stroke:#F0997B}.c-coral .th{fill:#F5C4B3}.c-coral .ts{fill:#F0997B}
+.c-amber rect{fill:#633806;stroke:#EF9F27}.c-amber .th{fill:#FAC775}.c-amber .ts{fill:#EF9F27}
+.c-blue rect{fill:#0C447C;stroke:#85B7EB}.c-blue .th{fill:#B5D4F4}.c-blue .ts{fill:#85B7EB}
+.c-green rect{fill:#27500A;stroke:#97C459}.c-green .th{fill:#C0DD97}.c-green .ts{fill:#97C459}
+.c-gray rect{fill:#444441;stroke:#B4B2A9}.c-gray .th{fill:#D3D1C7}.c-gray .ts{fill:#B4B2A9}}
+</style>
+</head>
+<body>
+<main>
+<h1>Tick.AI — Flowchart utilisateur</h1>
+<p class="sub">Ce que vit l'utilisateur, de la connexion à la clôture : espace « Suivi de ma demande » (6 étapes), les trois mails, et chaque niveau de traitement. Version figée — référence pour la partie back.</p>
+<svg viewBox="0 0 680 1310" role="img" aria-label="Flowchart utilisateur Tick.AI avec espace de suivi et mails">
+<title>Flowchart utilisateur avec espace de suivi et mails</title>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+<rect x="24" y="10" width="642" height="112" rx="12" style="fill:none;stroke:var(--border-strong);stroke-width:0.5"/>
+<text class="th" x="38" y="30">Espace « Suivi de ma demande »</text>
+<text class="ts" x="654" y="30" text-anchor="end">lien dans chaque mail ou depuis Tick.AI</text>
+<g style="fill:var(--surface-1);stroke:var(--border-strong);stroke-width:1.5">
+<circle cx="80" cy="56" r="12"/><circle cx="192" cy="56" r="12"/><circle cx="304" cy="56" r="12"/><circle cx="416" cy="56" r="12"/><circle cx="528" cy="56" r="12"/><circle cx="640" cy="56" r="12"/></g>
+<text class="th" x="80" y="56" text-anchor="middle" dominant-baseline="central">1</text>
+<text class="th" x="192" y="56" text-anchor="middle" dominant-baseline="central">2</text>
+<text class="th" x="304" y="56" text-anchor="middle" dominant-baseline="central">3</text>
+<text class="th" x="416" y="56" text-anchor="middle" dominant-baseline="central">4</text>
+<text class="th" x="528" y="56" text-anchor="middle" dominant-baseline="central">5</text>
+<text class="th" x="640" y="56" text-anchor="middle" dominant-baseline="central">6</text>
+<line class="arr" x1="94" y1="56" x2="176" y2="56" marker-end="url(#arrow)"/>
+<line class="arr" x1="206" y1="56" x2="288" y2="56" marker-end="url(#arrow)"/>
+<line class="arr" x1="318" y1="56" x2="400" y2="56" marker-end="url(#arrow)"/>
+<line class="arr" x1="430" y1="56" x2="512" y2="56" marker-end="url(#arrow)"/>
+<line class="arr" x1="542" y1="56" x2="624" y2="56" marker-end="url(#arrow)"/>
+<text class="ts" x="80" y="80" text-anchor="middle">Envoyée</text>
+<text class="ts" x="192" y="80" text-anchor="middle">Prise en charge</text>
+<text class="ts" x="304" y="80" text-anchor="middle">Traitement</text>
+<text class="ts" x="416" y="80" text-anchor="middle">À vérifier</text>
+<text class="ts" x="528" y="80" text-anchor="middle">Résolu</text>
+<text class="ts" x="640" y="80" text-anchor="middle">Clôturé</text>
+<g class="c-blue"><rect x="152" y="92" width="80" height="18" rx="9" stroke-width="0.5"/><text class="ts" x="192" y="101" text-anchor="middle" dominant-baseline="central">✉ prise en charge</text></g>
+<g class="c-blue"><rect x="264" y="92" width="80" height="18" rx="9" stroke-width="0.5"/><text class="ts" x="304" y="101" text-anchor="middle" dominant-baseline="central">✉ action</text></g>
+<g class="c-blue"><rect x="376" y="92" width="80" height="18" rx="9" stroke-width="0.5"/><text class="ts" x="416" y="101" text-anchor="middle" dominant-baseline="central">✉ action</text></g>
+<g class="c-blue"><rect x="488" y="92" width="80" height="18" rx="9" stroke-width="0.5"/><text class="ts" x="528" y="101" text-anchor="middle" dominant-baseline="central">✉ action</text></g>
+<g class="c-blue"><rect x="600" y="92" width="80" height="18" rx="9" stroke-width="0.5"/><text class="ts" x="640" y="101" text-anchor="middle" dominant-baseline="central">✉ clôture</text></g>
+
+<g transform="translate(0,134)">
+
+<rect x="24" y="10" width="642" height="140" rx="12" style="fill:none;stroke:var(--border-strong);stroke-width:0.5;stroke-dasharray:5 4"/>
+<text class="th" x="38" y="30">A · De la connexion au ticket — pour tout le monde</text>
+<g class="c-purple"><rect x="38" y="46" width="108" height="44" rx="6" stroke-width="0.5"/><text class="th" x="92" y="61" text-anchor="middle" dominant-baseline="central">Connexion</text><text class="ts" x="92" y="78" text-anchor="middle" dominant-baseline="central">déjà reconnu</text></g>
+<g class="c-purple"><rect x="166" y="46" width="108" height="44" rx="6" stroke-width="0.5"/><text class="th" x="220" y="61" text-anchor="middle" dominant-baseline="central">Demande</text><text class="ts" x="220" y="78" text-anchor="middle" dominant-baseline="central">écrit son besoin</text></g>
+<g class="c-purple"><rect x="294" y="46" width="108" height="44" rx="6" stroke-width="0.5"/><text class="th" x="348" y="61" text-anchor="middle" dominant-baseline="central">Clarifie</text><text class="ts" x="348" y="78" text-anchor="middle" dominant-baseline="central">répond</text></g>
+<g class="c-purple"><rect x="422" y="46" width="108" height="44" rx="6" stroke-width="0.5"/><text class="th" x="476" y="61" text-anchor="middle" dominant-baseline="central">Valide</text><text class="ts" x="476" y="78" text-anchor="middle" dominant-baseline="central">relit et valide</text></g>
+<g class="c-purple"><rect x="550" y="46" width="108" height="44" rx="6" stroke-width="0.5"/><text class="th" x="604" y="61" text-anchor="middle" dominant-baseline="central">Accusé</text><text class="ts" x="604" y="78" text-anchor="middle" dominant-baseline="central">n° de ticket</text></g>
+<line class="arr" x1="146" y1="68" x2="164" y2="68" marker-end="url(#arrow)"/>
+<line class="arr" x1="274" y1="68" x2="292" y2="68" marker-end="url(#arrow)"/>
+<line class="arr" x1="402" y1="68" x2="420" y2="68" marker-end="url(#arrow)"/>
+<line class="arr" x1="530" y1="68" x2="548" y2="68" marker-end="url(#arrow)"/>
+<circle cx="558" cy="46" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="558" y="46" text-anchor="middle" dominant-baseline="central">1</text>
+<rect x="632" y="38" width="24" height="16" rx="8" style="fill:var(--bg-accent);stroke:var(--border-accent);stroke-width:0.5"/><text class="ts" x="644" y="46" text-anchor="middle" dominant-baseline="central" style="fill:var(--text-accent)">✉</text>
+<g class="c-amber"><rect x="294" y="98" width="108" height="20" rx="10" stroke-width="0.5"/><text class="ts" x="348" y="108" text-anchor="middle" dominant-baseline="central">↻ tant que flou</text></g>
+<g class="c-amber"><rect x="422" y="98" width="108" height="20" rx="10" stroke-width="0.5"/><text class="ts" x="476" y="108" text-anchor="middle" dominant-baseline="central">↻ modifier</text></g>
+<g class="c-coral"><rect x="422" y="122" width="108" height="20" rx="10" stroke-width="0.5"/><text class="ts" x="476" y="132" text-anchor="middle" dominant-baseline="central">technicien → E</text></g>
+
+<path class="arr" fill="none" d="M604 90 V180 H552" marker-end="url(#arrow)"/>
+<g class="c-gray"><rect x="140" y="168" width="410" height="24" rx="12" stroke-width="0.5"/><text class="ts" x="345" y="180" text-anchor="middle" dominant-baseline="central">Tick.AI choisit le traitement · l'utilisateur n'a rien à choisir</text></g>
+<path class="arr" fill="none" d="M345 192 V212 H10 V726"/>
+<line class="arr" x1="10" y1="246" x2="22" y2="246" marker-end="url(#arrow)"/>
+<line class="arr" x1="10" y1="474" x2="22" y2="474" marker-end="url(#arrow)"/>
+<line class="arr" x1="10" y1="726" x2="22" y2="726" marker-end="url(#arrow)"/>
+
+<rect x="24" y="226" width="642" height="212" rx="12" style="fill:none;stroke:var(--border-strong);stroke-width:0.5;stroke-dasharray:5 4"/>
+<text class="th" x="38" y="246">B · N1 — « J'ai besoin d'un logiciel »</text>
+<text class="ts" x="654" y="246" text-anchor="end">entrée : accès logiciel</text>
+<text class="ts" x="38" y="263">Ex. accès Figma</text>
+<g class="c-teal"><rect x="38" y="282" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="105" y="297" text-anchor="middle" dominant-baseline="central">Confirmation</text><text class="ts" x="105" y="314" text-anchor="middle" dominant-baseline="central">de sa demande</text></g>
+<g class="c-teal"><rect x="196" y="282" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="263" y="297" text-anchor="middle" dominant-baseline="central">Droit vérifié</text><text class="ts" x="263" y="314" text-anchor="middle" dominant-baseline="central">par Tick.AI</text></g>
+<g class="c-amber"><rect x="354" y="282" width="134" height="44" rx="6" stroke-width="0.5" stroke-dasharray="4 3"/><text class="th" x="421" y="304" text-anchor="middle" dominant-baseline="central">Autorisé ?</text></g>
+<g class="c-teal"><rect x="512" y="282" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="579" y="297" text-anchor="middle" dominant-baseline="central">Accès activé</text><text class="ts" x="579" y="314" text-anchor="middle" dominant-baseline="central">il le teste</text></g>
+<line class="arr" x1="172" y1="304" x2="194" y2="304" marker-end="url(#arrow)"/>
+<line class="arr" x1="330" y1="304" x2="352" y2="304" marker-end="url(#arrow)"/>
+<line class="arr" x1="488" y1="304" x2="510" y2="304" marker-end="url(#arrow)"/>
+<text class="ts" x="499" y="296" text-anchor="middle">Oui</text>
+<g class="c-teal"><rect x="354" y="348" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="421" y="363" text-anchor="middle" dominant-baseline="central">En attente</text><text class="ts" x="421" y="380" text-anchor="middle" dominant-baseline="central">↻ approbation · licence</text></g>
+<line class="arr" x1="421" y1="326" x2="421" y2="346" marker-end="url(#arrow)"/>
+<g class="c-teal"><rect x="196" y="348" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="263" y="363" text-anchor="middle" dominant-baseline="central">Refus expliqué</text><text class="ts" x="263" y="380" text-anchor="middle" dominant-baseline="central">si non autorisé</text></g>
+<path class="arr" fill="none" d="M380 326 V337 H263 V346" marker-end="url(#arrow)"/>
+<line class="arr" x1="263" y1="392" x2="263" y2="400" marker-end="url(#arrow)"/>
+<g class="c-coral"><rect x="203" y="402" width="120" height="20" rx="10" stroke-width="0.5"/><text class="ts" x="263" y="412" text-anchor="middle" dominant-baseline="central">révision → E</text></g>
+<line class="arr" x1="579" y1="326" x2="579" y2="346" marker-end="url(#arrow)"/>
+<g class="c-amber"><rect x="512" y="348" width="134" height="44" rx="6" stroke-width="0.5" stroke-dasharray="4 3"/><text class="th" x="579" y="370" text-anchor="middle" dominant-baseline="central">Ça marche ?</text></g>
+<line class="arr" x1="545" y1="392" x2="545" y2="400" marker-end="url(#arrow)"/>
+<g class="c-green"><rect x="512" y="402" width="66" height="20" rx="10" stroke-width="0.5"/><text class="ts" x="545" y="412" text-anchor="middle" dominant-baseline="central">Oui → F</text></g>
+<line class="arr" x1="613" y1="392" x2="613" y2="400" marker-end="url(#arrow)"/>
+<g class="c-coral"><rect x="580" y="402" width="66" height="20" rx="10" stroke-width="0.5"/><text class="ts" x="613" y="412" text-anchor="middle" dominant-baseline="central">Non → E</text></g>
+<circle cx="46" cy="282" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="46" y="282" text-anchor="middle" dominant-baseline="central">2</text>
+<circle cx="204" cy="282" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="204" y="282" text-anchor="middle" dominant-baseline="central">3</text>
+<circle cx="520" cy="282" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="520" y="282" text-anchor="middle" dominant-baseline="central">4</text>
+<rect x="620" y="274" width="24" height="16" rx="8" style="fill:var(--bg-accent);stroke:var(--border-accent);stroke-width:0.5"/><text class="ts" x="632" y="282" text-anchor="middle" dominant-baseline="central" style="fill:var(--text-accent)">✉</text>
+<circle cx="362" cy="348" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="362" y="348" text-anchor="middle" dominant-baseline="central">3</text>
+<circle cx="204" cy="348" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="204" y="348" text-anchor="middle" dominant-baseline="central">5</text>
+
+<rect x="24" y="454" width="642" height="236" rx="12" style="fill:none;stroke:var(--border-strong);stroke-width:0.5;stroke-dasharray:5 4"/>
+<text class="th" x="38" y="474">C · N2 — « Mon logiciel ne fonctionne pas »</text>
+<text class="ts" x="654" y="474" text-anchor="end">entrée : logiciel en panne</text>
+<text class="ts" x="38" y="491">Ex. notifications Teams · avec son accord</text>
+<g class="c-coral"><rect x="203" y="504" width="120" height="20" rx="10" stroke-width="0.5"/><text class="ts" x="263" y="514" text-anchor="middle" dominant-baseline="central">refuse → E</text></g>
+<line class="arr" x1="263" y1="538" x2="263" y2="526" marker-end="url(#arrow)"/>
+<g class="c-blue"><rect x="38" y="538" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="105" y="553" text-anchor="middle" dominant-baseline="central">Proposition</text><text class="ts" x="105" y="570" text-anchor="middle" dominant-baseline="central">intervention auto</text></g>
+<g class="c-amber"><rect x="196" y="538" width="134" height="44" rx="6" stroke-width="0.5" stroke-dasharray="4 3"/><text class="th" x="263" y="560" text-anchor="middle" dominant-baseline="central">Il autorise ?</text></g>
+<g class="c-blue"><rect x="354" y="538" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="421" y="553" text-anchor="middle" dominant-baseline="central">Il attend</text><text class="ts" x="421" y="570" text-anchor="middle" dominant-baseline="central">suivi du statut</text></g>
+<g class="c-blue"><rect x="512" y="538" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="579" y="553" text-anchor="middle" dominant-baseline="central">Il teste</text><text class="ts" x="579" y="570" text-anchor="middle" dominant-baseline="central">les notifications</text></g>
+<line class="arr" x1="172" y1="560" x2="194" y2="560" marker-end="url(#arrow)"/>
+<line class="arr" x1="330" y1="560" x2="352" y2="560" marker-end="url(#arrow)"/>
+<text class="ts" x="341" y="552" text-anchor="middle">Oui</text>
+<line class="arr" x1="488" y1="560" x2="510" y2="560" marker-end="url(#arrow)"/>
+<line class="arr" x1="579" y1="582" x2="579" y2="602" marker-end="url(#arrow)"/>
+<g class="c-amber"><rect x="512" y="604" width="134" height="44" rx="6" stroke-width="0.5" stroke-dasharray="4 3"/><text class="th" x="579" y="626" text-anchor="middle" dominant-baseline="central">Ça marche ?</text></g>
+<line class="arr" x1="545" y1="648" x2="545" y2="656" marker-end="url(#arrow)"/>
+<g class="c-green"><rect x="512" y="658" width="66" height="20" rx="10" stroke-width="0.5"/><text class="ts" x="545" y="668" text-anchor="middle" dominant-baseline="central">Oui → F</text></g>
+<line class="arr" x1="613" y1="648" x2="613" y2="656" marker-end="url(#arrow)"/>
+<g class="c-coral"><rect x="580" y="658" width="66" height="20" rx="10" stroke-width="0.5"/><text class="ts" x="613" y="668" text-anchor="middle" dominant-baseline="central">Non → E</text></g>
+<circle cx="46" cy="538" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="46" y="538" text-anchor="middle" dominant-baseline="central">3</text>
+<rect x="108" y="530" width="24" height="16" rx="8" style="fill:var(--bg-accent);stroke:var(--border-accent);stroke-width:0.5"/><text class="ts" x="120" y="538" text-anchor="middle" dominant-baseline="central" style="fill:var(--text-accent)">✉</text>
+<circle cx="362" cy="538" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="362" y="538" text-anchor="middle" dominant-baseline="central">3</text>
+<circle cx="520" cy="538" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="520" y="538" text-anchor="middle" dominant-baseline="central">4</text>
+<rect x="620" y="530" width="24" height="16" rx="8" style="fill:var(--bg-accent);stroke:var(--border-accent);stroke-width:0.5"/><text class="ts" x="632" y="538" text-anchor="middle" dominant-baseline="central" style="fill:var(--text-accent)">✉</text>
+
+<rect x="24" y="706" width="642" height="110" rx="12" style="fill:none;stroke:var(--border-strong);stroke-width:0.5;stroke-dasharray:5 4"/>
+<text class="th" x="38" y="726">D · N3 — « Mon incident est complexe »</text>
+<text class="ts" x="654" y="726" text-anchor="end">entrée : incident complexe</text>
+<text class="ts" x="38" y="743">Vision future</text>
+<g class="c-gray"><rect x="38" y="758" width="134" height="44" rx="6" stroke-width="0.5" stroke-dasharray="4 3"/><text class="th" x="105" y="773" text-anchor="middle" dominant-baseline="central">Il est informé</text><text class="ts" x="105" y="790" text-anchor="middle" dominant-baseline="central">expertise requise</text></g>
+<g class="c-gray"><rect x="196" y="758" width="134" height="44" rx="6" stroke-width="0.5" stroke-dasharray="4 3"/><text class="th" x="263" y="773" text-anchor="middle" dominant-baseline="central">Il reste informé</text><text class="ts" x="263" y="790" text-anchor="middle" dominant-baseline="central">diagnostic préparé</text></g>
+<g class="c-gray"><rect x="354" y="758" width="134" height="44" rx="6" stroke-width="0.5" stroke-dasharray="4 3"/><text class="th" x="421" y="773" text-anchor="middle" dominant-baseline="central">Il précise</text><text class="ts" x="421" y="790" text-anchor="middle" dominant-baseline="central">si on le sollicite</text></g>
+<g class="c-coral"><rect x="512" y="758" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="579" y="773" text-anchor="middle" dominant-baseline="central">Technicien</text><text class="ts" x="579" y="790" text-anchor="middle" dominant-baseline="central">reprend → E</text></g>
+<line class="arr" x1="172" y1="780" x2="194" y2="780" marker-end="url(#arrow)"/>
+<line class="arr" x1="330" y1="780" x2="352" y2="780" marker-end="url(#arrow)"/>
+<line class="arr" x1="488" y1="780" x2="510" y2="780" marker-end="url(#arrow)"/>
+<circle cx="46" cy="758" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="46" y="758" text-anchor="middle" dominant-baseline="central">3</text>
+<circle cx="204" cy="758" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="204" y="758" text-anchor="middle" dominant-baseline="central">3</text>
+<circle cx="362" cy="758" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="362" y="758" text-anchor="middle" dominant-baseline="central">3</text>
+<rect x="462" y="750" width="24" height="16" rx="8" style="fill:var(--bg-accent);stroke:var(--border-accent);stroke-width:0.5"/><text class="ts" x="474" y="758" text-anchor="middle" dominant-baseline="central" style="fill:var(--text-accent)">✉</text>
+<circle cx="520" cy="758" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="520" y="758" text-anchor="middle" dominant-baseline="central">3</text>
+
+<rect x="24" y="832" width="642" height="140" rx="12" style="fill:none;stroke:var(--border-strong);stroke-width:0.5;stroke-dasharray:5 4"/>
+<text class="th" x="38" y="852">E · Support humain — ce que vit l'utilisateur</text>
+<text class="ts" x="38" y="869">Même demande : il ne répète rien.</text>
+<g class="c-coral"><rect x="38" y="884" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="105" y="899" text-anchor="middle" dominant-baseline="central">Chez un technicien</text><text class="ts" x="105" y="916" text-anchor="middle" dominant-baseline="central">attente plus longue</text></g>
+<g class="c-coral"><rect x="196" y="884" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="263" y="899" text-anchor="middle" dominant-baseline="central">Il répond</text><text class="ts" x="263" y="916" text-anchor="middle" dominant-baseline="central">si on le sollicite</text></g>
+<g class="c-coral"><rect x="354" y="884" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="421" y="899" text-anchor="middle" dominant-baseline="central">Il suit</text><text class="ts" x="421" y="916" text-anchor="middle" dominant-baseline="central">sa demande</text></g>
+<g class="c-coral"><rect x="512" y="884" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="579" y="899" text-anchor="middle" dominant-baseline="central">Il reçoit</text><text class="ts" x="579" y="916" text-anchor="middle" dominant-baseline="central">le résultat</text></g>
+<line class="arr" x1="172" y1="906" x2="194" y2="906" marker-end="url(#arrow)"/>
+<line class="arr" x1="330" y1="906" x2="352" y2="906" marker-end="url(#arrow)"/>
+<line class="arr" x1="488" y1="906" x2="510" y2="906" marker-end="url(#arrow)"/>
+<line class="arr" x1="579" y1="928" x2="579" y2="936" marker-end="url(#arrow)"/>
+<g class="c-green"><rect x="539" y="938" width="80" height="20" rx="10" stroke-width="0.5"/><text class="ts" x="579" y="948" text-anchor="middle" dominant-baseline="central">→ F</text></g>
+<text class="ts" x="38" y="950">↻ Résultat non vérifié : le technicien reprend le dossier</text>
+<circle cx="46" cy="884" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="46" y="884" text-anchor="middle" dominant-baseline="central">3</text>
+<circle cx="204" cy="884" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="204" y="884" text-anchor="middle" dominant-baseline="central">3</text>
+<rect x="304" y="876" width="24" height="16" rx="8" style="fill:var(--bg-accent);stroke:var(--border-accent);stroke-width:0.5"/><text class="ts" x="316" y="884" text-anchor="middle" dominant-baseline="central" style="fill:var(--text-accent)">✉</text>
+<circle cx="362" cy="884" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="362" y="884" text-anchor="middle" dominant-baseline="central">3</text>
+<circle cx="520" cy="884" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="520" y="884" text-anchor="middle" dominant-baseline="central">4</text>
+
+<rect x="24" y="988" width="642" height="140" rx="12" style="fill:none;stroke:var(--border-strong);stroke-width:0.5;stroke-dasharray:5 4"/>
+<text class="th" x="38" y="1008">F · Fin de parcours</text>
+<text class="ts" x="38" y="1025">Il confirme que son problème est réglé</text>
+<g class="c-green"><rect x="38" y="1040" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="105" y="1055" text-anchor="middle" dominant-baseline="central">Il confirme</text><text class="ts" x="105" y="1072" text-anchor="middle" dominant-baseline="central">le résultat</text></g>
+<g class="c-amber"><rect x="196" y="1040" width="134" height="44" rx="6" stroke-width="0.5" stroke-dasharray="4 3"/><text class="th" x="263" y="1062" text-anchor="middle" dominant-baseline="central">Résolu ?</text></g>
+<g class="c-green"><rect x="354" y="1040" width="134" height="44" rx="6" stroke-width="0.5"/><text class="th" x="421" y="1055" text-anchor="middle" dominant-baseline="central">Ticket clôturé</text><text class="ts" x="421" y="1072" text-anchor="middle" dominant-baseline="central">historique gardé</text></g>
+<line class="arr" x1="172" y1="1062" x2="194" y2="1062" marker-end="url(#arrow)"/>
+<line class="arr" x1="330" y1="1062" x2="352" y2="1062" marker-end="url(#arrow)"/>
+<text class="ts" x="341" y="1054" text-anchor="middle">Oui</text>
+<line class="arr" x1="263" y1="1084" x2="263" y2="1092" marker-end="url(#arrow)"/>
+<g class="c-coral"><rect x="153" y="1094" width="220" height="22" rx="11" stroke-width="0.5"/><text class="ts" x="263" y="1105" text-anchor="middle" dominant-baseline="central">↻ Non → retour E, même demande</text></g>
+<circle cx="46" cy="1040" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="46" y="1040" text-anchor="middle" dominant-baseline="central">5</text>
+<rect x="148" y="1032" width="24" height="16" rx="8" style="fill:var(--bg-accent);stroke:var(--border-accent);stroke-width:0.5"/><text class="ts" x="160" y="1040" text-anchor="middle" dominant-baseline="central" style="fill:var(--text-accent)">✉</text>
+<circle cx="362" cy="1040" r="9" style="fill:var(--surface-2);stroke:var(--border-strong);stroke-width:1"/><text class="ts" x="362" y="1040" text-anchor="middle" dominant-baseline="central">6</text>
+<rect x="464" y="1032" width="24" height="16" rx="8" style="fill:var(--bg-accent);stroke:var(--border-accent);stroke-width:0.5"/><text class="ts" x="476" y="1040" text-anchor="middle" dominant-baseline="central" style="fill:var(--text-accent)">✉</text>
+
+<text class="ts" x="24" y="1148">Ambre pointillé : décision · rouge : vers le support humain (E) · vert : vers la fin (F) · ↻ : boucle de retour</text>
+<text class="ts" x="24" y="1166">Petit rond numéroté : étape du suivi · ✉ : mail envoyé (prise en charge, action, clôture)</text>
+</g>
+</svg>
+</main>
+</body>
+</html>
