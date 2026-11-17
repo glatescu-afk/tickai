@@ -42,6 +42,13 @@ DATASET = Path("data/tickets_n1.json")
 #                       macOS (Accessibilité + Enregistrement de l'écran).
 MODE = os.getenv("HAI_RUN_MODE", "cloud").lower()
 
+# Dry-run : pour un ticket AUTORISÉ, on saute l'étape d'invitation (aucune
+# modification réelle) et on ne fait que la vérification en lecture seule.
+# Sert à valider le pilotage desktop (navigation + lecture de la liste des
+# membres) SANS inviter personne. ⚠️ Ne teste donc pas le clic sur « Invite
+# members » (la raison d'être du mode desktop) : ça, c'est le run réel.
+DRY_RUN = os.getenv("HAI_DRY_RUN", "").strip().lower() in ("1", "true", "yes", "oui")
+
 
 def obtenir_agent(client: Client):
     """Retourne l'agent selon le mode (string cloud, ou agent custom local/desktop)."""
@@ -234,13 +241,18 @@ def traiter_ticket(client: Client, ticket: Ticket, console_url: str, groupe: str
         return entree
 
     # --- Étape B : l'agent invite l'utilisateur au groupe GitLab ---
-    creation = client.run_session(
-        agent=agent,
-        messages=consigne_creation(ticket, console_url, groupe),
-        answer_schema=ResultatCreation,
-    )
-    print(f"[Création] statut : {creation.status}")
-    print(f"[Création] réponse : {creation.answer}")
+    if DRY_RUN:
+        # Dry-run : aucune invitation réelle. On passe directement à la lecture.
+        creation = None
+        print("[Création] DRY-RUN — invitation NON effectuée (aucune modification).")
+    else:
+        creation = client.run_session(
+            agent=agent,
+            messages=consigne_creation(ticket, console_url, groupe),
+            answer_schema=ResultatCreation,
+        )
+        print(f"[Création] statut : {creation.status}")
+        print(f"[Création] réponse : {creation.answer}")
 
     # --- Étape C : vérification INDÉPENDANTE (session séparée, lecture seule) ---
     # On ne se fie pas à ce que l'agent a annoncé : on relit l'état réel.
@@ -265,16 +277,20 @@ def traiter_ticket(client: Client, ticket: Ticket, console_url: str, groupe: str
         "etape": "2-n1-access",
         "ticket": ticket.model_dump(),
         "decision": "autorise",
-        "intervention_agent": True,
-        "statut_creation": _statut(creation),
-        "reponse_creation": str(creation.answer),
+        "dry_run": DRY_RUN,
+        # En dry-run aucune invitation n'est émise : l'agent n'a modifié que la
+        # lecture. On le reflète honnêtement dans le journal.
+        "intervention_agent": not DRY_RUN,
+        "statut_creation": None if DRY_RUN else _statut(creation),
+        "reponse_creation": None if DRY_RUN else str(creation.answer),
         "statut_verification": _statut(verif),
         "verification_acces_present": acces_ok,
         "succes_bout_en_bout": succes_bout_en_bout,
         "duree_s": duree,
     }
     journaliser(entree)
-    print(f"[Verdict] succès vérifié bout-en-bout : {succes_bout_en_bout} ({duree} s)")
+    verdict = "présence vérifiée (lecture seule)" if DRY_RUN else "succès vérifié bout-en-bout"
+    print(f"[Verdict] {verdict} : {succes_bout_en_bout} ({duree} s)")
     return entree
 
 
@@ -291,11 +307,19 @@ def resumer(resultats: list[dict]) -> None:
     duree_moy = round(sum(r["duree_s"] for r in resultats) / total, 1) if total else 0
 
     print("\n========== MÉTRIQUES ==========")
+    if DRY_RUN:
+        print("(DRY-RUN : aucune invitation émise — la lecture seule a été validée, "
+              "le bout-en-bout n'est PAS mesuré ici.)")
     print(f"Tickets traités             : {total}")
     print(f"Refus corrects (bloqués)    : {len(refus)}")
-    print(f"Interventions tentées       : {len(tentees)}")
-    taux = f"{len(reussis)}/{len(tentees)}" if tentees else "n/a"
-    print(f"Succès vérifié bout-en-bout : {taux}")
+    if DRY_RUN:
+        # En dry-run, aucune intervention réelle : ne pas afficher un taux de
+        # succès qui se lirait comme un échec de bout-en-bout.
+        print(f"Demandes autorisées (lues)  : {len(tentees)}")
+    else:
+        print(f"Interventions tentées       : {len(tentees)}")
+        taux = f"{len(reussis)}/{len(tentees)}" if tentees else "n/a"
+        print(f"Succès vérifié bout-en-bout : {taux}")
     if erreurs:
         print(f"Échecs techniques           : {len(erreurs)}")
     print(f"Temps moyen / ticket        : {duree_moy} s")
@@ -320,7 +344,8 @@ def main() -> None:
         "desktop": "tickai-n1-desktop (bureau, vrais clics)",
     }
     etiquette = etiquettes.get(MODE, AGENT)
-    print(f"{len(tickets)} ticket(s) · mode={MODE} · agent={etiquette} · groupe={groupe}")
+    suffixe = " · DRY-RUN (aucune invitation réelle)" if DRY_RUN else ""
+    print(f"{len(tickets)} ticket(s) · mode={MODE} · agent={etiquette} · groupe={groupe}{suffixe}")
 
     # Chaque ticket est isolé : un échec/exception (réseau, AnswerValidationError,
     # session interrompue…) est tracé mais n'interrompt pas le reste du batch.
