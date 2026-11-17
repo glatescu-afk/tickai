@@ -1,0 +1,11 @@
+# SDK agents computer-use de H Company
+hai-agents>=0.1
+
+# Lecture de la config .env
+python-dotenv>=1.0
+
+# Sorties structurées / validation
+pydantic>=2.0
+
+# Appels HTTP (lecture du quota de tokens)
+requests>=2.31
