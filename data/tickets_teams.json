@@ -1,0 +1,16 @@
+[
+  {
+    "id": "TCK-0042",
+    "demandeur_email": "marie.durand@exemple.fr",
+    "action_demandee": "corriger_micro_teams",
+    "application": "Microsoft Teams",
+    "motif": "Mon micro ne marche pas en réunion Teams, personne ne m'entend."
+  },
+  {
+    "id": "TCK-0043",
+    "demandeur_email": "leo.stagiaire@exemple.fr",
+    "action_demandee": "reinstaller_os",
+    "application": "Windows",
+    "motif": "Mon poste est très lent, pouvez-vous réinstaller Windows ?"
+  }
+]

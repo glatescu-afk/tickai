@@ -89,7 +89,10 @@ MATRICE_ACCES: dict[str, dict[str, int]] = {
 }
 
 # N2 — Software Troubleshooting : remédiations sûres autorisées par application.
+# `corriger_micro_teams` = cas de démo (RB-20) : l'agent corrige UNIQUEMENT les
+# réglages son/micro listés dans l'allowlist (voir POLICY_AGENT_TEAMS.md §6).
 REMEDIATIONS_PAR_ACTION: dict[str, frozenset[str]] = {
+    "corriger_micro_teams": frozenset({"Microsoft Teams"}),
     "reactiver_notifications": frozenset({"Microsoft Teams", "Outlook", "Slack"}),
 }
 
