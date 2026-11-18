@@ -1,0 +1,18 @@
+# On n'embarque que le service Python. Tout le reste est exclu du contexte de build.
+.git
+.venv
+__pycache__
+**/__pycache__
+*.pyc
+.env
+.env.*
+logs/
+data/
+tests/
+tickai-portal/
+documentation/
+*.pdf
+*.md
+etape*.py
+demo_local.py
+.DS_Store
