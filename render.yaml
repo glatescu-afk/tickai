@@ -1,0 +1,23 @@
+# Blueprint Render pour le service agent Tick.AI (served desktop).
+# Déploie le même Dockerfile. Tier gratuit (le service s'endort après inactivité
+# et se réveille à la 1re requête ~30-60 s : OK, n8n attend via le nœud Wait).
+services:
+  - type: web
+    name: tickai-service
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: HAI_SERVED_DESKTOP
+        value: "1"
+      - key: HAI_BASE_URL
+        value: https://agp.eu.hcompany.ai/api/v2
+      - key: HAI_DESKTOP_AGENT
+        value: tickai-teams-desktop
+      # Secret : à renseigner dans le dashboard Render (jamais commité).
+      - key: HAI_API_KEY
+        sync: false
+      # Repli mono-poste : le session_id de `holo local desktop`, à poser au test.
+      - key: HAI_DESKTOP_SESSION_ID
+        sync: false
