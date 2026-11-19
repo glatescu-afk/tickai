@@ -29,7 +29,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-5 sm:px-8">
       <AppHeader section="Connexion" />
       <section className="flex flex-1 items-center justify-center py-12">
-        <div className="animate-float grid w-full max-w-4xl overflow-hidden rounded-3xl border border-border bg-card/90 shadow-sm md:grid-cols-[0.85fr_1.15fr]">
+        <div className="animate-float float-always grid w-full max-w-4xl overflow-hidden rounded-3xl border border-border bg-card/90 shadow-sm md:grid-cols-[0.85fr_1.15fr]">
           <div className="relative hidden flex-col justify-between overflow-hidden border-r border-white/[0.07] bg-card p-8 md:flex">
             <div style={{ animationDelay: '0.6s' }} className="float-tag relative flex size-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
               <ShieldCheck aria-hidden="true" className="size-6" />

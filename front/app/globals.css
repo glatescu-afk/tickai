@@ -159,7 +159,8 @@ body {
   50% { transform: translateY(-3px); }
 }
 .float-tag { animation: float-soft 3.2s ease-in-out var(--float-delay, 0s) infinite; }
-.animate-float:hover, .animate-float:focus-within, .float-tag:hover, .float-tag:focus-visible { animation-play-state: paused; }
+/* Pause au survol pour les petites étiquettes ; les grandes cartes (.float-always, ex. connexion) flottent en continu */
+.animate-float:not(.float-always):hover, .float-tag:hover, .float-tag:focus-visible { animation-play-state: paused; }
 @keyframes count-pop {
   0% { transform: scale(1); }
   40% { transform: scale(1.35); }
