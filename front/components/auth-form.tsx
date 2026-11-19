@@ -6,11 +6,6 @@ import { LoaderCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { createClient } from '@/lib/supabase/client'
 
 type AuthMode = 'client-login' | 'client-signup' | 'support-login'
@@ -173,17 +168,9 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       </Button>
 
       {isSupport ? (
-        <div className="flex flex-col gap-2">
-          <Tooltip>
-            <TooltipTrigger render={<span tabIndex={0} className="inline-flex w-full" />}>
-              <Button type="button" variant="outline" disabled className="h-11 w-full border-white/10 bg-white/[0.02] text-slate-500">
-                Créer un compte
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Non disponible pour la démo</TooltipContent>
-          </Tooltip>
-          <p className="text-center text-xs text-muted-foreground">Non disponible pour la démo</p>
-        </div>
+        <Button type="button" variant="outline" disabled className="no-glow h-11 w-full border-slate-200 bg-transparent text-slate-500">
+          Créer un compte
+        </Button>
       ) : null}
 
       {mode === 'client-login' ? (

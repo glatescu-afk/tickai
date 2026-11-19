@@ -153,7 +153,28 @@ body {
   0%, 22% { transform: translateX(-220%) skewX(-18deg); }
   44%, 100% { transform: translateX(440%) skewX(-18deg); }
 }
+/* Étiquettes flottantes v2 (19/11) : pause au survol, compteurs qui « sautent », point animé */
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.float-tag { animation: float-soft 3.2s ease-in-out var(--float-delay, 0s) infinite; }
+.animate-float:hover, .animate-float:focus-within, .float-tag:hover, .float-tag:focus-visible { animation-play-state: paused; }
+@keyframes count-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+.count-pop { display: inline-block; animation: count-pop 420ms cubic-bezier(.2,.8,.2,1); }
+@keyframes live-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .35; transform: scale(.75); }
+}
+.live-dot { animation: live-dot 1.4s ease-in-out infinite; }
+/* Cadres transparents (ex. formulaire de connexion) : pas de halo ni de trait */
+[data-slot="card"].bg-transparent, [data-slot="card"].bg-transparent:hover, .no-glow, .no-glow:hover { box-shadow: none !important; }
 @media (prefers-reduced-motion: reduce) {
+  .float-tag, .count-pop, .live-dot { animation: none !important; }
   .typing-dot { animation: none; }
   .animate-float { animation: none !important; transition: none !important; }
   .shine-effect::after, :is([data-slot="button"].bg-primary, [data-slot="button"].bg-blue-600, [data-slot="button"].text-blue-700, button.bg-primary, button.bg-blue-600, a.bg-primary):not(.shine-effect)::after { animation: none !important; }

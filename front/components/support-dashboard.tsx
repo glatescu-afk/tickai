@@ -73,8 +73,8 @@ export function SupportDashboard({ initialTickets, profiles, categories }: { ini
       {tabs.map((tab, index) => {
         const isActive = activeTab === tab.id
         const count = tab.id === 'all' ? tickets.length : tickets.filter((item) => tab.statuses.includes(item.statut as never)).length
-        return <button key={tab.id} type="button" style={{ animationDelay: `${index * 0.4}s` }} role="tab" aria-selected={isActive} onClick={() => setActiveTab(tab.id)} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-medium shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 ${isActive ? `${tab.activeClass} font-bold` : tab.inactiveClass}`}>
-          {tab.label}<span className={`rounded-full px-1.5 py-0.5 text-[10px] tabular-nums ${isActive ? 'bg-white text-current shadow-sm' : 'bg-white/80 text-current'}`}>{count}</span>
+        return <button key={tab.id} type="button" style={{ animationDelay: `${index * 0.4}s` }} role="tab" aria-selected={isActive} onClick={() => setActiveTab(tab.id)} className={`float-tag inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-medium shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 ${isActive ? `${tab.activeClass} font-bold` : tab.inactiveClass}`}>
+          {tab.label}<span key={count} className={`count-pop rounded-full px-1.5 py-0.5 text-[10px] tabular-nums ${isActive ? 'bg-white text-current shadow-sm' : 'bg-white/80 text-current'}`}>{count}</span>
         </button>
       })}
     </div>
@@ -104,7 +104,7 @@ export function SupportDashboard({ initialTickets, profiles, categories }: { ini
 }
 
 function Metric({ title, value, icon, accentClassName }: { title: string; value: string | number; icon: ReactNode; accentClassName: string }) {
-  return <div className="motion-enter animate-float rounded-2xl border border-slate-200/60 bg-card px-4 py-4 shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none"><div className="flex items-start justify-between gap-3"><p className="text-xs leading-5 text-muted-foreground">{title}</p><span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${accentClassName}`}>{icon}</span></div><p className="mt-3 text-3xl font-semibold tabular-nums text-blue-900">{value}</p></div>
+  return <div className="motion-enter animate-float rounded-2xl border border-slate-200/60 bg-card px-4 py-4 shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none"><div className="flex items-start justify-between gap-3"><p className="text-xs leading-5 text-muted-foreground">{title}</p><span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${accentClassName}`}>{icon}</span></div><p className="mt-3 text-3xl font-semibold tabular-nums text-blue-900"><span key={String(value)} className="count-pop">{value}</span></p></div>
 }
 
 function firstSentence(text: string) {

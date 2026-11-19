@@ -108,10 +108,10 @@ export function RequestsList({ userId, initialTickets }: { userId: string; initi
               role="tab"
               aria-selected={isActive}
               onClick={() => setFilter(item.id)}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 ${isActive ? `${item.activeClass} font-bold` : `${item.inactiveClass} font-medium`}`}
+              className={`float-tag inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 ${isActive ? `${item.activeClass} font-bold` : `${item.inactiveClass} font-medium`}`}
             >
               {item.label}
-              <span className={`rounded-full px-1.5 py-0.5 text-[10px] tabular-nums ${isActive ? 'bg-white text-current shadow-sm' : 'bg-white/80 text-current'}`}>{count}</span>
+              <span key={count} className={`count-pop rounded-full px-1.5 py-0.5 text-[10px] tabular-nums ${isActive ? 'bg-white text-current shadow-sm' : 'bg-white/80 text-current'}`}>{count}</span>
             </button>
           )
         })}

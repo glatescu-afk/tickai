@@ -23,7 +23,7 @@ export function LevelBadge({ level }: { level: number | string | null }) {
 
 export function StatusBadge({ status }: { status: string | null }) {
   const value = status ?? 'brouillon'
-  return <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${statusStyle[value] ?? statusStyle.brouillon}`}>{statusLabel[value] ?? value.replaceAll('_', ' ')}</span>
+  return <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${statusStyle[value] ?? statusStyle.brouillon}`}>{value === 'en_cours' ? <span aria-hidden="true" className="live-dot size-1.5 rounded-full bg-current" /> : null}{statusLabel[value] ?? value.replaceAll('_', ' ')}</span>
 }
 
 // Côté support : 4 étiquettes simples (les statuts Supabase restent inchangés).
@@ -43,7 +43,7 @@ export function SupportStatusBadge({ status }: { status: string | null }) {
   const item = supportStatus[value]
   if (!item) return <StatusBadge status={status} />
   return <span className="inline-flex flex-col items-start gap-1">
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${item.className}`}>{item.label}</span>
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${item.className}`}>{value === 'valide' || value === 'en_cours' ? <span aria-hidden="true" className="live-dot size-1.5 rounded-full bg-current" /> : null}{item.label}</span>
     {item.note ? <span className="text-[10px] leading-none text-muted-foreground">{item.note}</span> : null}
   </span>
 }

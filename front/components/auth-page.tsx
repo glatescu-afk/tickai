@@ -1,7 +1,6 @@
 import { ShieldCheck } from 'lucide-react'
 import { AppHeader } from '@/components/app-header'
 import { AuthForm } from '@/components/auth-form'
-import { Card, CardContent } from '@/components/ui/card'
 
 type AuthMode = 'client-login' | 'client-signup' | 'support-login'
 
@@ -30,9 +29,9 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-5 sm:px-8">
       <AppHeader section="Connexion" />
       <section className="flex flex-1 items-center justify-center py-12">
-        <div className="grid w-full max-w-4xl overflow-hidden rounded-3xl border border-border bg-card/90 shadow-sm md:grid-cols-[0.85fr_1.15fr]">
+        <div className="animate-float grid w-full max-w-4xl overflow-hidden rounded-3xl border border-border bg-card/90 shadow-sm md:grid-cols-[0.85fr_1.15fr]">
           <div className="relative hidden flex-col justify-between overflow-hidden border-r border-white/[0.07] bg-card p-8 md:flex">
-            <div className="relative flex size-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+            <div style={{ animationDelay: '0.6s' }} className="float-tag relative flex size-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
               <ShieldCheck aria-hidden="true" className="size-6" />
             </div>
             <div className="relative">
@@ -46,11 +45,9 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
             <p className="text-[11px] font-semibold tracking-[0.18em] text-primary">{copy.label}</p>
             <h1 className="page-title-gradient mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">{copy.title}</h1>
             <p className="mt-2 text-sm leading-6 text-slate-400">{copy.description}</p>
-            <Card className="mt-7 border-0 bg-transparent p-0 shadow-none ring-0">
-              <CardContent className="p-0">
-                <AuthForm mode={mode} />
-              </CardContent>
-            </Card>
+            <div className="mt-7">
+              <AuthForm mode={mode} />
+            </div>
           </div>
         </div>
       </section>

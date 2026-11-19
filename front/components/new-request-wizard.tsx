@@ -668,7 +668,7 @@ function ConfirmationStep({ ticket, email, isTestMode, postponed }: { ticket: Cr
         </span>
         <p className="mt-6 text-xs font-medium tracking-[0.16em] text-status-success">ÉTAPE 4 · CONFIRMATION</p>
         <h2 className="page-title-gradient mt-3 text-2xl font-semibold sm:text-3xl">Votre ticket a bien été créé.</h2>
-        <div className="motion-enter mx-auto mt-5 max-w-xl rounded-2xl border border-slate-200/60 bg-blue-50 p-4 text-left shadow-sm sm:p-5">
+        <div className="motion-enter animate-float mx-auto mt-5 max-w-xl rounded-2xl border border-slate-200/60 bg-blue-50 p-4 text-left shadow-sm sm:p-5">
           <div className="flex items-start gap-3">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-blue-200 bg-white text-blue-700">
               <Mail aria-hidden="true" className="size-5" />
@@ -689,7 +689,7 @@ function ConfirmationStep({ ticket, email, isTestMode, postponed }: { ticket: Cr
             </div>
           </div>
         </div>
-        <div className="motion-enter mx-auto mt-7 max-w-sm rounded-2xl border border-slate-200/60 bg-white/70 p-4 text-left shadow-sm">
+        <div style={{ animationDelay: '0ms, 0.6s' }} className="motion-enter animate-float mx-auto mt-7 max-w-sm rounded-2xl border border-slate-200/60 bg-white/70 p-4 text-left shadow-sm">
           <div className="flex items-center justify-between gap-3"><span className="text-sm text-slate-400">Numéro de suivi</span><span className="font-mono text-sm font-semibold text-white">{number}</span></div>
           <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-3"><span className="text-sm text-slate-400">Créée le</span><span className="text-right text-xs text-slate-300">{createdDate}</span></div>
           <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-3"><span className="text-sm text-slate-400">Statut</span>{postponed ? <span className="rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 text-xs text-amber-800">En attente de votre accord</span> : <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-xs text-primary">Validée</span>}</div>
