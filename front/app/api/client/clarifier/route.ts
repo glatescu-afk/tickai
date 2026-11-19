@@ -8,7 +8,7 @@ const requestSchema = z.discriminatedUnion('action', [
     demande_id: z.string().uuid(),
     texte: z.string().trim().min(1).max(1200).optional(),
   }),
-  z.object({ action: z.literal('valider'), demande_id: z.string().uuid() }),
+  z.object({ action: z.literal('valider'), demande_id: z.string().uuid(), consentement: z.boolean().optional() }),
 ])
 
 function getWebhookRecord(value: unknown): Record<string, unknown> | null {
@@ -37,11 +37,20 @@ export async function POST(request: Request) {
   const { data: demande } = await supabase.from('demandes').select('id').eq('id', parsed.data.demande_id).eq('user_id', user.id).maybeSingle()
   if (!demande) return Response.json({ error: 'Cette demande est introuvable.' }, { status: 404 })
 
+  // Niveau 1 : on trace l'accord du collaborateur AVANT de lancer la validation (l'agent démarre juste après).
+  if (parsed.data.action === 'valider' && parsed.data.consentement === true) {
+    const { data: consentOk, error: consentError } = await supabase.rpc('enregistrer_consentement', { p_demande_id: parsed.data.demande_id })
+    if (consentError || consentOk !== true) {
+      return Response.json({ error: 'Votre accord n’a pas pu être enregistré. Réessayez dans un instant.' }, { status: 409 })
+    }
+  }
+  const webhookBody = parsed.data.action === 'valider' ? { action: 'valider', demande_id: parsed.data.demande_id } : parsed.data
+
   try {
     const webhookResponse = await fetch(N8N_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(parsed.data),
+      body: JSON.stringify(webhookBody),
       cache: 'no-store',
       signal: AbortSignal.timeout(30_000),
     })

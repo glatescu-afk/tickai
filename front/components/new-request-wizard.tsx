@@ -53,6 +53,7 @@ export function NewRequestWizard({ profile, email, initialDemandeId }: WizardPro
   const [readyToConfirm, setReadyToConfirm] = useState(false)
   const [categoryName, setCategoryName] = useState<string | null>(null)
   const [niveau, setNiveau] = useState<1 | 2>(2)
+  const [consent, setConsent] = useState(false)
   const [assistantLoading, setAssistantLoading] = useState(false)
   const [assistantError, setAssistantError] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -232,15 +233,20 @@ export function NewRequestWizard({ profile, email, initialDemandeId }: WizardPro
 
   async function submitRequest() {
     if (!createdTicket || !summary || isSubmitting) return
+    if (niveau === 1 && !consent) return
     setIsSubmitting(true)
     setSubmitError(null)
     try {
       const response = await fetch('/api/client/clarifier', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'valider', demande_id: createdTicket.id }),
+        body: JSON.stringify({ action: 'valider', demande_id: createdTicket.id, ...(niveau === 1 ? { consentement: consent } : {}) }),
       })
       const payload = await response.json() as { error?: string; numero?: string | null; niveau?: 1 | 2 | null }
+      if (response.status === 409) {
+        setSubmitError(payload.error ?? 'Votre accord n’a pas pu être enregistré. Réessayez dans un instant.')
+        return
+      }
       if (!response.ok || payload.error) throw new Error(payload.error ?? 'validation_failed')
       setCreatedTicket({ ...createdTicket, numero: payload.numero ?? createdTicket.numero })
       if (payload.niveau === 1 || payload.niveau === 2) setNiveau(payload.niveau)
@@ -324,6 +330,9 @@ export function NewRequestWizard({ profile, email, initialDemandeId }: WizardPro
           email={email}
           submitError={submitError}
           isSubmitting={isSubmitting}
+          niveau={niveau}
+          consent={consent}
+          onConsentChange={setConsent}
           onBack={() => setStep(2)}
           onSubmit={() => void submitRequest()}
         />
@@ -571,6 +580,9 @@ function ReviewStep({
   email,
   submitError,
   isSubmitting,
+  niveau,
+  consent,
+  onConsentChange,
   onBack,
   onSubmit,
 }: {
@@ -580,9 +592,13 @@ function ReviewStep({
   email: string | null
   submitError: string | null
   isSubmitting: boolean
+  niveau: 1 | 2
+  consent: boolean
+  onConsentChange: (value: boolean) => void
   onBack: () => void
   onSubmit: () => void
 }) {
+  const needsConsent = niveau === 1
   const fullName = [profile.prenom, profile.nom].filter(Boolean).join(' ') || 'Nom non renseigné'
 
   return (
@@ -609,6 +625,16 @@ function ReviewStep({
             <div><dt className="text-xs text-slate-500">E-mail</dt><dd className="mt-1 break-all text-sm text-slate-300">{email || 'Non renseigné'}</dd></div>
           </dl>
         </section>
+        {needsConsent ? (
+          <section className="rounded-2xl border border-blue-200 bg-blue-50/70 p-4 shadow-sm sm:p-5" aria-labelledby="consent-heading">
+            <h2 id="consent-heading" className="font-semibold text-blue-900">Intervention automatique sur votre poste</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-700">Pour résoudre votre problème, l’agent Tick.AI va prendre la main sur votre ordinateur (ouvrir Microsoft Teams, modifier les réglages, environ 1 minute). Ne touchez pas à votre souris ni à votre clavier pendant l’intervention.</p>
+            <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-blue-200 bg-white p-3 text-sm font-medium text-slate-800">
+              <input type="checkbox" checked={consent} onChange={(event) => onConsentChange(event.target.checked)} disabled={isSubmitting} className="mt-0.5 size-4 shrink-0 accent-blue-600" />
+              J’autorise l’agent Tick.AI à intervenir sur mon poste.
+            </label>
+          </section>
+        ) : null}
         {submitError ? <p role="alert" className="rounded-xl border border-status-danger/20 bg-status-danger/5 p-3 text-sm text-status-danger">{submitError}</p> : null}
       </CardContent>
       <CardFooter className="flex-col-reverse gap-2 border-t border-border bg-card/80 sm:flex-row sm:justify-between">
@@ -616,9 +642,9 @@ function ReviewStep({
           <ArrowLeft data-icon="inline-start" />
           Retour au résumé
         </Button>
-        <Button type="button" onClick={onSubmit} disabled={isSubmitting} className="shine-effect h-10 bg-primary px-4 text-primary-foreground hover:bg-primary/90">
+        <Button type="button" onClick={onSubmit} disabled={isSubmitting || (needsConsent && !consent)} className="shine-effect h-10 bg-primary px-4 text-primary-foreground hover:bg-primary/90">
           {isSubmitting ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : <Check aria-hidden="true" className="size-4" />}
-          {isSubmitting ? 'Envoi en cours…' : 'Envoyer ma demande'}
+          {isSubmitting ? 'Envoi en cours…' : needsConsent ? 'Valider et lancer l’intervention' : 'Envoyer ma demande'}
         </Button>
       </CardFooter>
     </Card>
