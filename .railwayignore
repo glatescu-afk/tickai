@@ -8,7 +8,7 @@ __pycache__
 logs/
 data/
 tests/
-tickai-portal/
+front/
 documentation/
 *.pdf
 etape*.py

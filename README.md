@@ -66,7 +66,7 @@ Front (portail)                     n8n (orchestrateur)              Ce dépôt 
 ├── POLICY_AGENT_TEAMS.md    # règles de l'agent (RB-20 + garde-fous)
 ├── documentation/           # docs sources (Supabase, runbooks, n8n…)
 ├── tests/                   # tests hors-ligne (policy, engine, runner, agent_teams)
-├── tickai-portal/           # front Next.js (rebranchement Supabase à venir)
+├── front/                   # front Next.js Tick.AI (espace client + tableau de bord support)
 ├── requirements.txt
 └── .env.example             # modèle de configuration (ne pas committer .env)
 ```
