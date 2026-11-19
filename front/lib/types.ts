@@ -27,6 +27,7 @@ export type Ticket = {
   diagnostic: string | null
   consentement_agent?: boolean | null
   consentement_at?: string | null
+  duree_s?: number | null
   created_at: string
   updated_at: string
 }

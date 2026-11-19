@@ -19,7 +19,7 @@ export default async function SupportTicketPage({ params }: { params: Promise<{ 
   if (actor?.role !== 'support') redirect('/support')
 
   const { data: ticket } = await supabase.from('demandes')
-    .select('id, numero, user_id, description_initiale, resume_propose, description_finale, categorie_id, niveau, statut, resultat, preuve, diagnostic, consentement_agent, consentement_at, created_at, updated_at')
+    .select('id, numero, user_id, description_initiale, resume_propose, description_finale, categorie_id, niveau, statut, resultat, preuve, diagnostic, consentement_agent, consentement_at, duree_s, created_at, updated_at')
     .eq('id', id).maybeSingle()
   if (!ticket) notFound()
 
