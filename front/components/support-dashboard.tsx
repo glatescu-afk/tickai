@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import useSWR from 'swr'
-import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle2, Inbox, Layers, Search, Send, Sparkles, Tag, TicketCheck } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle2, Inbox, Layers, Search, Send, Sparkles, TicketCheck } from 'lucide-react'
 import { LevelBadge, SupportStatusBadge } from '@/components/ticket-badges'
 import { createClient } from '@/lib/supabase/client'
 import { getTicketSummary, type Profile, type Ticket } from '@/lib/types'
@@ -20,7 +20,6 @@ const tabs = [
 export function SupportDashboard({ initialTickets, profiles, categories }: { initialTickets: Ticket[]; profiles: Profile[]; categories: Category[] }) {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]['id']>('action')
   const [level, setLevel] = useState('all')
-  const [category, setCategory] = useState('all')
   const [query, setQuery] = useState('')
   const [newestFirst, setNewestFirst] = useState(true)
   const supabase = useMemo(() => createClient(), [])
@@ -42,7 +41,6 @@ export function SupportDashboard({ initialTickets, profiles, categories }: { ini
     const searchable = `${ticket.numero} ${getTicketSummary(ticket)} ${ticket.categorie ?? ''} ${person?.prenom ?? ''} ${person?.nom ?? ''} ${person?.identifiant_employe ?? ''}`.toLocaleLowerCase('fr')
     return (!currentTab.statuses.length || currentTab.statuses.includes(ticket.statut as never))
       && (level === 'all' || String(ticket.niveau) === level)
-      && (category === 'all' || String(ticket.categorie_id) === category)
       && (!needle || searchable.includes(needle))
   }).sort((a, b) => (new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) * (newestFirst ? 1 : -1))
   const sortDirectionLabel = newestFirst ? 'du plus récent au plus ancien' : 'du plus ancien au plus récent'
@@ -85,16 +83,14 @@ export function SupportDashboard({ initialTickets, profiles, categories }: { ini
       </div>
       <div className="flex flex-wrap gap-3">
         <label className="flex h-10 items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 text-xs text-violet-800 shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none"><Layers aria-hidden="true" className="size-4 text-[#6D28D9]" />Niveau<select value={level} onChange={(event) => setLevel(event.target.value)} className="bg-transparent font-medium text-slate-800 outline-none"><option value="all">Tous</option><option value="1">1</option><option value="2">2</option></select></label>
-        <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 text-xs text-blue-800 shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none"><Tag aria-hidden="true" className="size-4 text-[#1D4ED8]" />Catégorie<select value={category} onChange={(event) => setCategory(event.target.value)} className="max-w-40 bg-transparent font-medium text-slate-800 outline-none"><option value="all">Toutes</option>{categories.map((item) => <option key={item.id} value={String(item.id)}>{item.nom}</option>)}</select></label>
       </div>
     </div>
     {error ? <p role="alert" className="rounded-2xl border border-status-danger/20 bg-status-danger/5 p-4 text-sm text-status-danger shadow-sm">Impossible de charger les tickets. Actualisez la page pour réessayer.</p> : filteredRows.length ? <div className="space-y-3">
-      <div className="hidden grid-cols-[minmax(7rem,0.8fr)_minmax(10rem,1.4fr)_minmax(12rem,2fr)_minmax(7rem,1fr)_5rem_9rem_8rem] gap-3 rounded-2xl border border-slate-200/60 bg-card/80 px-4 py-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground shadow-sm xl:grid"><span>Numéro</span><span>Collaborateur</span><span>Demande</span><span>Catégorie</span><span>Niveau</span><span>Statut</span><button type="button" onClick={toggleDateSort} title={`Trier ${sortDirectionLabel}`} aria-label={`Trier ${sortDirectionLabel}`} className="inline-flex items-center gap-1.5 text-left hover:text-foreground">Créée le{newestFirst ? <ArrowDown aria-hidden="true" className="size-3.5 text-blue-600" /> : <ArrowUp aria-hidden="true" className="size-3.5 text-blue-600" />}</button></div>
-      <ul className="grid gap-3">{filteredRows.map((ticket, index) => <li key={ticket.id}><Link href={`/support/${ticket.id}`} style={{ animationDelay: `${Math.min(index * 50, 300)}ms` }} className="motion-enter grid grid-cols-2 gap-x-4 gap-y-3 rounded-2xl border border-slate-200/60 bg-card px-4 py-4 text-sm shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary xl:grid-cols-[minmax(7rem,0.8fr)_minmax(10rem,1.4fr)_minmax(12rem,2fr)_minmax(7rem,1fr)_5rem_9rem_8rem] xl:items-center">
+      <div className="hidden grid-cols-[minmax(7rem,0.8fr)_minmax(10rem,1.4fr)_minmax(14rem,2.4fr)_5rem_9rem_8rem] gap-3 rounded-2xl border border-slate-200/60 bg-card/80 px-4 py-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground shadow-sm xl:grid"><span>Numéro</span><span>Collaborateur</span><span>Demande</span><span>Niveau</span><span>Statut</span><button type="button" onClick={toggleDateSort} title={`Trier ${sortDirectionLabel}`} aria-label={`Trier ${sortDirectionLabel}`} className="inline-flex items-center gap-1.5 text-left hover:text-foreground">Créée le{newestFirst ? <ArrowDown aria-hidden="true" className="size-3.5 text-blue-600" /> : <ArrowUp aria-hidden="true" className="size-3.5 text-blue-600" />}</button></div>
+      <ul className="grid gap-3">{filteredRows.map((ticket, index) => <li key={ticket.id}><Link href={`/support/${ticket.id}`} style={{ animationDelay: `${Math.min(index * 50, 300)}ms` }} className="motion-enter grid grid-cols-2 gap-x-4 gap-y-3 rounded-2xl border border-slate-200/60 bg-card px-4 py-4 text-sm shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary xl:grid-cols-[minmax(7rem,0.8fr)_minmax(10rem,1.4fr)_minmax(14rem,2.4fr)_5rem_9rem_8rem] xl:items-center">
         <span className="font-mono text-xs font-medium text-primary"><span className="mb-1 block font-sans text-[10px] uppercase text-muted-foreground xl:hidden">Numéro</span>{ticket.numero}</span>
         <span className="min-w-0 text-xs text-foreground"><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Collaborateur</span><span className="block truncate font-medium">{[ticket.collaborateur?.prenom, ticket.collaborateur?.nom].filter(Boolean).join(' ') || 'Profil indisponible'}</span><span className="block truncate text-muted-foreground">{ticket.collaborateur?.identifiant_employe || '—'}</span></span>
         <span className="col-span-2 min-w-0 text-xs font-medium text-foreground xl:col-span-1"><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Demande</span><span className="block truncate">{firstSentence(getTicketSummary(ticket))}</span></span>
-        <span className="text-xs text-muted-foreground"><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Catégorie</span>{ticket.categorie || '—'}</span>
         <span><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Niveau</span><LevelBadge level={ticket.niveau} /></span>
         <span><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Statut</span><SupportStatusBadge status={ticket.statut} /></span>
         <span className="text-xs text-muted-foreground"><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Créée le</span>{formatDate(ticket.created_at)}</span>
