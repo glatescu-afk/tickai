@@ -7,11 +7,13 @@ const statusStyle: Record<string, string> = {
   transmis_support: 'border-status-warning/20 bg-status-warning/10 text-status-warning',
   cloture: 'border-border bg-muted text-muted-foreground',
   brouillon: 'border-border bg-muted text-muted-foreground',
+  en_attente_consentement: 'border-amber-200 bg-amber-100 text-amber-800',
 }
 const statusLabel: Record<string, string> = {
   resolu: 'Résolu', en_cours: 'En cours', valide: 'Validé', en_clarification: 'En clarification',
   escalade: 'Escaladé', transmis_support: 'Transmis au support', cloture: 'Clôturé', brouillon: 'Brouillon',
   reprise_humaine: 'Pris en charge',
+  en_attente_consentement: 'En attente de votre accord',
 }
 
 export function LevelBadge({ level }: { level: number | string | null }) {

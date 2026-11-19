@@ -53,7 +53,7 @@ export function NewRequestWizard({ profile, email, initialDemandeId }: WizardPro
   const [readyToConfirm, setReadyToConfirm] = useState(false)
   const [categoryName, setCategoryName] = useState<string | null>(null)
   const [niveau, setNiveau] = useState<1 | 2>(2)
-  const [consent, setConsent] = useState(false)
+  const [postponed, setPostponed] = useState(false)
   const [assistantLoading, setAssistantLoading] = useState(false)
   const [assistantError, setAssistantError] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -231,16 +231,16 @@ export function NewRequestWizard({ profile, email, initialDemandeId }: WizardPro
     setStep(3)
   }
 
-  async function submitRequest() {
+  // launchNow : niveau 1 uniquement. true = l'agent démarre tout de suite ; false = « Plus tard » (n8n met le ticket en attente d'accord).
+  async function submitRequest(launchNow = true) {
     if (!createdTicket || !summary || isSubmitting) return
-    if (niveau === 1 && !consent) return
     setIsSubmitting(true)
     setSubmitError(null)
     try {
       const response = await fetch('/api/client/clarifier', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'valider', demande_id: createdTicket.id, ...(niveau === 1 ? { consentement: consent } : {}) }),
+        body: JSON.stringify({ action: 'valider', demande_id: createdTicket.id, ...(niveau === 1 ? { consentement: launchNow } : {}) }),
       })
       const payload = await response.json() as { error?: string; numero?: string | null; niveau?: 1 | 2 | null }
       if (response.status === 409) {
@@ -250,6 +250,7 @@ export function NewRequestWizard({ profile, email, initialDemandeId }: WizardPro
       if (!response.ok || payload.error) throw new Error(payload.error ?? 'validation_failed')
       setCreatedTicket({ ...createdTicket, numero: payload.numero ?? createdTicket.numero })
       if (payload.niveau === 1 || payload.niveau === 2) setNiveau(payload.niveau)
+      setPostponed(niveau === 1 && !launchNow)
       setStep(4)
     } catch {
       setIsTestMode(true)
@@ -331,14 +332,12 @@ export function NewRequestWizard({ profile, email, initialDemandeId }: WizardPro
           submitError={submitError}
           isSubmitting={isSubmitting}
           niveau={niveau}
-          consent={consent}
-          onConsentChange={setConsent}
           onBack={() => setStep(2)}
-          onSubmit={() => void submitRequest()}
+          onSubmit={(launchNow) => void submitRequest(launchNow)}
         />
       ) : null}
 
-      {step === 4 && createdTicket ? <ConfirmationStep ticket={createdTicket} email={email} isTestMode={isTestMode} /> : null}
+      {step === 4 && createdTicket ? <ConfirmationStep ticket={createdTicket} email={email} isTestMode={isTestMode} postponed={postponed} /> : null}
     </div>
   )
 }
@@ -581,8 +580,6 @@ function ReviewStep({
   submitError,
   isSubmitting,
   niveau,
-  consent,
-  onConsentChange,
   onBack,
   onSubmit,
 }: {
@@ -593,10 +590,8 @@ function ReviewStep({
   submitError: string | null
   isSubmitting: boolean
   niveau: 1 | 2
-  consent: boolean
-  onConsentChange: (value: boolean) => void
   onBack: () => void
-  onSubmit: () => void
+  onSubmit: (launchNow: boolean) => void
 }) {
   const needsConsent = niveau === 1
   const fullName = [profile.prenom, profile.nom].filter(Boolean).join(' ') || 'Nom non renseigné'
@@ -629,10 +624,7 @@ function ReviewStep({
           <section className="rounded-2xl border border-blue-200 bg-blue-50/70 p-4 shadow-sm sm:p-5" aria-labelledby="consent-heading">
             <h2 id="consent-heading" className="font-semibold text-blue-900">Intervention automatique sur votre poste</h2>
             <p className="mt-2 text-sm leading-6 text-slate-700">Pour résoudre votre problème, l’agent Tick.AI va prendre la main sur votre ordinateur (ouvrir Microsoft Teams, modifier les réglages, environ 1 minute). Ne touchez pas à votre souris ni à votre clavier pendant l’intervention.</p>
-            <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-blue-200 bg-white p-3 text-sm font-medium text-slate-800">
-              <input type="checkbox" checked={consent} onChange={(event) => onConsentChange(event.target.checked)} disabled={isSubmitting} className="mt-0.5 size-4 shrink-0 accent-blue-600" />
-              J’autorise l’agent Tick.AI à intervenir sur mon poste.
-            </label>
+            <p className="mt-2 text-sm leading-6 text-slate-700">Vous êtes occupé(e) ? Choisissez « Plus tard » : vous lancerez l’intervention depuis Mes demandes quand vous serez disponible.</p>
           </section>
         ) : null}
         {submitError ? <p role="alert" className="rounded-xl border border-status-danger/20 bg-status-danger/5 p-3 text-sm text-status-danger">{submitError}</p> : null}
@@ -642,16 +634,28 @@ function ReviewStep({
           <ArrowLeft data-icon="inline-start" />
           Retour au résumé
         </Button>
-        <Button type="button" onClick={onSubmit} disabled={isSubmitting || (needsConsent && !consent)} className="shine-effect h-10 bg-primary px-4 text-primary-foreground hover:bg-primary/90">
-          {isSubmitting ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : <Check aria-hidden="true" className="size-4" />}
-          {isSubmitting ? 'Envoi en cours…' : needsConsent ? 'Valider et lancer l’intervention' : 'Envoyer ma demande'}
-        </Button>
+        {needsConsent ? (
+          <div className="flex w-full flex-col-reverse gap-2 sm:w-auto sm:flex-row">
+            <Button type="button" variant="outline" onClick={() => onSubmit(false)} disabled={isSubmitting} className="h-10 border-blue-200 bg-white px-4 text-blue-700 hover:bg-blue-50">
+              Plus tard
+            </Button>
+            <Button type="button" onClick={() => onSubmit(true)} disabled={isSubmitting} className="shine-effect h-10 bg-primary px-4 text-primary-foreground hover:bg-primary/90">
+              {isSubmitting ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : <Check aria-hidden="true" className="size-4" />}
+              {isSubmitting ? 'Envoi en cours…' : 'Lancer l’intervention maintenant'}
+            </Button>
+          </div>
+        ) : (
+          <Button type="button" onClick={() => onSubmit(true)} disabled={isSubmitting} className="shine-effect h-10 bg-primary px-4 text-primary-foreground hover:bg-primary/90">
+            {isSubmitting ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : <Check aria-hidden="true" className="size-4" />}
+            {isSubmitting ? 'Envoi en cours…' : 'Envoyer ma demande'}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   )
 }
 
-function ConfirmationStep({ ticket, email, isTestMode }: { ticket: CreatedTicket; email: string | null; isTestMode: boolean }) {
+function ConfirmationStep({ ticket, email, isTestMode, postponed }: { ticket: CreatedTicket; email: string | null; isTestMode: boolean; postponed: boolean }) {
   const number = ticket.numero || `TCK-${ticket.id.slice(0, 8).toUpperCase()}`
   const createdDate = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(ticket.createdAt))
 
@@ -675,7 +679,11 @@ function ConfirmationStep({ ticket, email, isTestMode }: { ticket: CreatedTicket
               ) : (
                 <>
                   <p className="text-base font-semibold leading-6 text-slate-800">Un e-mail de confirmation vient de vous être envoyé à {email || 'l’adresse e-mail de votre profil'}.</p>
-                  <p className="text-sm leading-6 text-slate-700">Vous serez prévenu(e) par e-mail dès que votre demande sera résolue ou prise en charge.</p>
+                  {postponed ? (
+                    <p className="text-sm leading-6 text-slate-700">L’agent attend votre accord : lancez l’intervention depuis Mes demandes quand vous êtes disponible.</p>
+                  ) : (
+                    <p className="text-sm leading-6 text-slate-700">Vous serez prévenu(e) par e-mail dès que votre demande sera résolue ou prise en charge.</p>
+                  )}
                 </>
               )}
             </div>
@@ -684,7 +692,7 @@ function ConfirmationStep({ ticket, email, isTestMode }: { ticket: CreatedTicket
         <div className="motion-enter mx-auto mt-7 max-w-sm rounded-2xl border border-slate-200/60 bg-white/70 p-4 text-left shadow-sm">
           <div className="flex items-center justify-between gap-3"><span className="text-sm text-slate-400">Numéro de suivi</span><span className="font-mono text-sm font-semibold text-white">{number}</span></div>
           <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-3"><span className="text-sm text-slate-400">Créée le</span><span className="text-right text-xs text-slate-300">{createdDate}</span></div>
-          <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-3"><span className="text-sm text-slate-400">Statut</span><span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-xs text-primary">Validée</span></div>
+          <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-3"><span className="text-sm text-slate-400">Statut</span>{postponed ? <span className="rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 text-xs text-amber-800">En attente de votre accord</span> : <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-xs text-primary">Validée</span>}</div>
         </div>
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
           <Button render={<Link href={`/client/demandes/${ticket.id}`} />} variant="outline" className="border-white/10 bg-transparent text-slate-200 hover:bg-white/[0.04]">Voir le détail</Button>

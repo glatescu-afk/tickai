@@ -47,7 +47,7 @@ export function RequestsList({ userId, initialTickets }: { userId: string; initi
     const matchesFilter = filter === 'all'
       ? true
       : filter === 'incomplete'
-        ? isIncompleteStatus(status)
+        ? isIncompleteStatus(status) || status === 'en_attente_consentement'
         : filter === 'active'
           ? ['valide', 'en_cours'].includes(status)
           : filter === 'support'
@@ -94,7 +94,7 @@ export function RequestsList({ userId, initialTickets }: { userId: string; initi
           const count = allTickets.filter((ticket) => {
             const status = ticket.statut ?? 'brouillon'
             if (item.id === 'all') return true
-            if (item.id === 'incomplete') return isIncompleteStatus(status)
+            if (item.id === 'incomplete') return isIncompleteStatus(status) || status === 'en_attente_consentement'
             if (item.id === 'active') return ['valide', 'en_cours'].includes(status)
             if (item.id === 'support') return ['transmis_support', 'escalade', 'reprise_humaine'].includes(status)
             return ['resolu', 'cloture'].includes(status)

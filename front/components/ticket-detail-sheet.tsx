@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { getTicketStatusPresentation, formatTicketDate, levelClassName } from '@/lib/ticket-display'
 import { getClientTicketSummary, getTicketSummary, type TicketCardData } from '@/lib/types'
 import { TicketTimeline } from '@/components/ticket-timeline'
+import { LaunchInterventionBox } from '@/components/launch-intervention-box'
 
 type TicketDetailSheetProps = {
   ticket: TicketCardData | null
@@ -56,6 +57,7 @@ export function TicketDetailSheet({ ticket, onClose, showNiveau = true, onEscala
             </div>
             <TicketTimeline status={ticket.statut} />
 
+            {clientView && ticket.statut === 'en_attente_consentement' ? <div className="mt-6"><LaunchInterventionBox demandeId={ticket.id} /></div> : null}
             <section className="mt-6 rounded-2xl border border-border/60 bg-card p-4 shadow-sm sm:p-5" aria-labelledby="ticket-summary-title">
               <h2 id="ticket-summary-title" className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Votre demande</h2>
               <p className="mt-3 whitespace-pre-line text-sm leading-6 text-zinc-200">{summary.replace(/\s*pré[- ]diagnostic\s*:[^\n]*(?:\n|$)/gimu, '').trim()}</p>

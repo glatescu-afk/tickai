@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import useSWR from 'swr'
 import { TicketCard } from '@/components/ticket-card'
+import { LaunchInterventionBox } from '@/components/launch-intervention-box'
 import { createClient } from '@/lib/supabase/client'
 import type { TicketCardData } from '@/lib/types'
 
@@ -53,5 +54,8 @@ export function LiveTicketDetail({ ticket, userId }: { ticket: TicketCardData; u
 
   const liveTicket = latestUpdate ? { ...ticket, ...latestUpdate } : ticket
 
-  return <TicketCard ticket={liveTicket} readOnly showNiveau={false} clientView />
+  return <>
+    {liveTicket.statut === 'en_attente_consentement' ? <div className="mb-5"><LaunchInterventionBox demandeId={ticket.id} onLaunched={() => void mutate()} /></div> : null}
+    <TicketCard ticket={liveTicket} readOnly showNiveau={false} clientView />
+  </>
 }

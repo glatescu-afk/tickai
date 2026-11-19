@@ -18,7 +18,7 @@ const statusLabels: Record<string, string> = {
   en_cours: 'En cours',
   valide: 'Validé',
   en_clarification: 'En clarification',
-  en_attente_consentement: 'En attente de consentement',
+  en_attente_consentement: 'En attente de votre accord',
   consentement_requis: 'En attente de consentement',
   escalade: 'Escaladé',
   transmis_support: 'Transmis au support',
@@ -40,7 +40,7 @@ export function getTicketStatusPresentation(ticket: Pick<Ticket, 'statut' | 'pre
   const hasVerifiedProof = status === 'resolu' && Boolean(ticket.preuve?.trim())
 
   if (isConsentRequired) {
-    return { label: 'En attente de consentement', className: statusStyles[status], kind: 'consent', pulse: false }
+    return { label: 'En attente de votre accord', className: statusStyles[status], kind: 'consent', pulse: false }
   }
   if (status === 'en_cours') {
     return { label: statusLabels.en_cours, className: statusStyles.en_cours, kind: 'progress', pulse: true }
