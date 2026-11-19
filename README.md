@@ -125,6 +125,11 @@ curl -X POST http://localhost:8000/run \
 
   Le `session_id` doit être identique côté service (`HAI_DESKTOP_SESSION_ID`).
 
+- **Installation « un coup » sur un Mac d'équipe** : [`setup_mac.sh`](setup_mac.sh)
+  installe le CLI holo, connecte au compte H, et pose un **LaunchAgent** (le bridge
+  démarre au login, se relance seul, garde le Mac éveillé). Une seule étape manuelle :
+  accorder **Accessibilité** + **Enregistrement de l'écran**. Aucun autre prérequis.
+
 ## Tests
 
 ```bash
