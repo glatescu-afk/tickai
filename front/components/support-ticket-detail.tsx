@@ -26,10 +26,12 @@ export function SupportTicketDetail({ initialTicket, initialMessages, initialJou
   // Temps réel : la fiche se met à jour seule (ex. en_cours → resolu) et la frise s'allonge.
   useEffect(() => {
     const channel = supabase.channel(`audit-${ticket.id}`)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'demandes', filter: `id=eq.${ticket.id}` }, ({ new: row }) => {
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'demandes', filter: `id=eq.${ticket.id}` }, (payload: { new: Record<string, unknown> }) => {
+        const row = payload.new
         setTicket((current) => ({ ...current, ...(row as Partial<TicketCardData>) }))
       })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'journal', filter: `demande_id=eq.${ticket.id}` }, ({ new: row }) => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'journal', filter: `demande_id=eq.${ticket.id}` }, (payload: { new: Record<string, unknown> }) => {
+        const row = payload.new
         const entry = row as JournalRow
         setJournal((current) => [...current, entry].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()))
       })
