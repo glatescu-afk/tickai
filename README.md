@@ -74,11 +74,11 @@ Front (portail)                     n8n (orchestrateur)              Ce dépôt 
 ├── etape1_test_agent.py    # smoke test de l'Agents API (clé + une navigation)
 ├── demo_local.py           # démo end-to-end locale (sans n8n), via l'engine
 ├── data/tickets_teams.json # tickets de démo (micro Teams)
-├── POLICY_AGENT_TEAMS.md   # règles de l'agent (RB-20 + garde-fous)
-├── documentation/          # docs sources (Supabase, runbooks, n8n…)
-├── tests/                  # tests hors-ligne (policy, engine, runner, agent_teams)
-├── tickai-portal/          # ⚠️ STUB de démo (in-memory, ne parle ni à Supabase ni à n8n) — le vrai front est un repo séparé
-├── Dockerfile · render.yaml # déploiement du service sur Render
+├── POLICY_AGENT_TEAMS.md    # règles de l'agent (RB-20 + garde-fous)
+├── documentation/           # docs sources (Supabase, runbooks, n8n…)
+├── tests/                   # tests hors-ligne (policy, engine, runner, agent_teams)
+├── front/                   # front Next.js Tick.AI (espace client + tableau de bord support)
+├── Dockerfile · render.yaml
 ├── requirements.txt
 └── .env.example            # modèle de configuration (ne pas committer .env)
 ```
