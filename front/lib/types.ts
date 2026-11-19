@@ -25,6 +25,8 @@ export type Ticket = {
   resultat: string | null
   preuve: string | null
   diagnostic: string | null
+  consentement_agent?: boolean | null
+  consentement_at?: string | null
   created_at: string
   updated_at: string
 }

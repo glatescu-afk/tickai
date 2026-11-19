@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, Check, Clock3, MessageSquareText, ScrollText } from 'lucide-react'
+import { AlertTriangle, Check, Clock3, MessageSquareText, ScrollText, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TicketCard } from '@/components/ticket-card'
 import { LevelBadge, SupportStatusBadge } from '@/components/ticket-badges'
@@ -40,6 +40,7 @@ export function SupportTicketDetail({ initialTicket, initialMessages, initialJou
 
   return <div className="mt-6">
     <div className="motion-enter mb-4 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-medium tracking-[0.14em] text-primary">DÉTAIL DU TICKET</p><h1 className="page-title-gradient mt-1 text-2xl font-semibold">{ticket.numero}</h1><p className="mt-1 text-xs text-muted-foreground">Créé le {formatDateTime(ticket.created_at)}</p></div><div className="flex items-center gap-2"><LevelBadge level={ticket.niveau} /><SupportStatusBadge status={ticket.statut} /></div></div>
+    <ConsentLine ticket={ticket} />
     <div style={{ animationDelay: '40ms' }}><TicketCard ticket={ticket} readOnly showNiveau /></div>
     <section style={{ animationDelay: '50ms' }} className="motion-enter mt-4 rounded-2xl border border-slate-200/60 bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" aria-labelledby="diagnostic-heading"><div className="flex items-center gap-2"><AlertTriangle aria-hidden="true" className="size-4 text-primary" /><h2 id="diagnostic-heading" className="font-semibold text-blue-900">Pré-diagnostic du chatbot</h2></div><p className="mt-3 whitespace-pre-line text-sm leading-6 text-foreground">{ticket.diagnostic?.trim() || 'Aucun pré-diagnostic renseigné.'}</p></section>
     {String(ticket.niveau) === '1' && (ticket.resultat || ticket.preuve) ? <section style={{ animationDelay: '100ms' }} className="motion-enter mt-4 rounded-2xl border border-slate-200/60 bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" aria-labelledby="agent-result-heading"><div className="flex items-center gap-2"><Check aria-hidden="true" className="size-4 text-primary" /><h2 id="agent-result-heading" className="font-semibold text-blue-900">Résultat de l’agent</h2></div>{ticket.resultat ? <p className="mt-3 whitespace-pre-line text-sm leading-6 text-foreground">{ticket.resultat}</p> : null}{ticket.preuve ? <p className="mt-3 whitespace-pre-line border-t border-border pt-3 text-sm leading-6 text-muted-foreground">{ticket.preuve}</p> : null}</section> : null}
@@ -51,7 +52,7 @@ export function SupportTicketDetail({ initialTicket, initialMessages, initialJou
       {tab === 'conversation' ? <div className="flex flex-col gap-4 p-4 sm:p-5" role="tabpanel" aria-label="Conversation">
         {initialMessages.length ? initialMessages.map((message, index) => <div key={`${message.created_at}-${index}`} style={{ animationDelay: `${Math.min(index * 50, 300)}ms` }} className={`motion-enter max-w-[88%] rounded-2xl border border-slate-200/60 px-4 py-3 shadow-sm ${message.role === 'user' ? 'self-end bg-primary/5' : 'self-start bg-background'}`}><p className="mb-1 text-[11px] font-semibold text-primary">{message.role === 'user' ? 'Collaborateur' : 'Tick.AI'}</p><p className="whitespace-pre-line text-sm leading-6 text-foreground">{message.contenu}</p><time dateTime={message.created_at} className="mt-2 block text-[11px] text-muted-foreground">{formatDateTime(message.created_at)}</time></div>) : <p className="py-8 text-center text-sm text-muted-foreground">Aucun message dans cette conversation.</p>}
       </div> : <div className="p-4 sm:p-5" role="tabpanel" aria-label="Journal">
-        {initialJournal.length ? <ol className="ml-2 border-l border-border pl-5">{initialJournal.map((entry, index) => <li key={`${entry.created_at}-${index}`} style={{ animationDelay: `${Math.min(index * 50, 300)}ms` }} className="motion-enter relative pb-6 last:pb-0"><span aria-hidden="true" className="absolute -left-[1.65rem] top-1 size-2 rounded-full bg-primary ring-4 ring-card" /><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold text-foreground">{entry.evenement.replaceAll('_', ' ')}</h3><time dateTime={entry.created_at} className="inline-flex items-center gap-1 text-xs text-muted-foreground"><Clock3 aria-hidden="true" className="size-3.5" />{formatDateTime(entry.created_at)}</time></div>{formatDetails(entry.details) ? <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words rounded-lg bg-background p-3 font-sans text-xs leading-5 text-muted-foreground">{formatDetails(entry.details)}</pre> : null}</li>)}</ol> : <p className="py-8 text-center text-sm text-muted-foreground">Aucun événement pour l’instant</p>}
+        {initialJournal.length ? <ol className="ml-2 border-l border-border pl-5">{initialJournal.map((entry, index) => <li key={`${entry.created_at}-${index}`} style={{ animationDelay: `${Math.min(index * 50, 300)}ms` }} className="motion-enter relative pb-6 last:pb-0"><span aria-hidden="true" className="absolute -left-[1.65rem] top-1 size-2 rounded-full bg-primary ring-4 ring-card" /><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold text-foreground">{eventLabel(entry.evenement)}</h3><time dateTime={entry.created_at} className="inline-flex items-center gap-1 text-xs text-muted-foreground"><Clock3 aria-hidden="true" className="size-3.5" />{formatDateTime(entry.created_at)}</time></div>{formatDetails(entry.details) ? <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words rounded-lg bg-background p-3 font-sans text-xs leading-5 text-muted-foreground">{formatDetails(entry.details)}</pre> : null}</li>)}</ol> : <p className="py-8 text-center text-sm text-muted-foreground">Aucun événement pour l’instant</p>}
       </div>}
     </section>
     {error ? <p role="alert" className="mt-4 rounded-lg border border-status-danger/20 bg-status-danger/5 p-3 text-sm text-status-danger">{error}</p> : null}
@@ -71,4 +72,34 @@ function formatDetails(details: unknown) {
   if (details === null || details === undefined || details === '') return ''
   if (typeof details === 'string') return details
   try { return JSON.stringify(details, null, 2) } catch { return String(details) }
+}
+
+// Noms lisibles pour la frise du journal (les valeurs viennent de n8n).
+const journalLabels: Record<string, string> = {
+  agent_lance: 'Agent lancé',
+  verification_ok: 'Vérification réussie',
+  escalade: 'Escaladé au support',
+  diagnostic_genere: 'Pré-diagnostic généré',
+}
+
+function eventLabel(evenement: string) {
+  const label = journalLabels[evenement] ?? evenement.replaceAll('_', ' ')
+  return label.charAt(0).toUpperCase() + label.slice(1)
+}
+
+function ConsentLine({ ticket }: { ticket: TicketCardData }) {
+  let text: string
+  let tone = 'border-slate-200 bg-slate-50 text-slate-700'
+  if (String(ticket.niveau) === '2') {
+    text = 'Accord du collaborateur : non requis (niveau 2).'
+  } else if (ticket.consentement_agent) {
+    text = ticket.consentement_at ? `Accord du collaborateur : donné le ${formatDateTime(ticket.consentement_at)}.` : 'Accord du collaborateur : donné.'
+    tone = 'border-green-200 bg-green-50 text-green-800'
+  } else if (ticket.statut === 'en_attente_consentement') {
+    text = 'En attente de l’accord du collaborateur pour lancer l’agent.'
+    tone = 'border-amber-200 bg-amber-50 text-amber-800'
+  } else {
+    text = 'Accord du collaborateur : non enregistré.'
+  }
+  return <p className={`motion-enter mb-4 flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm ${tone}`}><ShieldCheck aria-hidden="true" className="size-4 shrink-0" />{text}</p>
 }
