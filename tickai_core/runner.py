@@ -83,6 +83,8 @@ def run_session_fiable(
     tentatives: int = 2,
     timeout_seconds: float = 180.0,
     wait_for_seconds: int = 20,
+    max_steps: typing.Optional[int] = None,
+    idle_timeout_s: typing.Optional[int] = None,
     silencer: bool = True,
 ) -> typing.Any:
     """Lance une session en encaissant le bruit et les échecs transitoires.
@@ -91,9 +93,26 @@ def run_session_fiable(
     (`completed`/`idle`) est obtenu. Retente sur statut d'échec terminal ou sur
     exception, jusqu'à `tentatives`. Lève `EchecSessionError` ou la dernière
     exception si tout échoue — le moteur isole ce cas par ticket.
+
+    `max_steps` et `idle_timeout_s` **bornent la session côté serveur** (champs
+    `CreateSessionParams` du SDK) : la session se termine d'elle-même après ce
+    nombre de pas ou ce temps d'inactivité, même si l'agent ne converge pas —
+    c'est la garde-fou DURE contre un agent qui « ne s'arrête pas ». Laisser à
+    `None` conserve les valeurs par défaut du SDK.
     """
     if tentatives < 1:
         raise ValueError("tentatives doit être >= 1")
+
+    # Bornes de session passées au SDK uniquement si fournies (sinon défauts SDK).
+    bornes: dict[str, int] = {}
+    if max_steps is not None:
+        if max_steps < 1:
+            raise ValueError("max_steps doit être >= 1")
+        bornes["max_steps"] = max_steps
+    if idle_timeout_s is not None:
+        if idle_timeout_s < 1:
+            raise ValueError("idle_timeout_s doit être >= 1")
+        bornes["idle_timeout_s"] = idle_timeout_s
 
     derniere_exc: typing.Optional[BaseException] = None
     dernier_statut = "inconnu"
@@ -108,6 +127,7 @@ def run_session_fiable(
                     answer_schema=answer_schema,
                     timeout_seconds=timeout_seconds,
                     wait_for_seconds=wait_for_seconds,
+                    **bornes,
                 )
         except Exception as e:  # noqa: BLE001 — on veut retenter les transitoires
             derniere_exc = e
