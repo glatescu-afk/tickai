@@ -81,6 +81,42 @@ class TestRunSessionFiable(unittest.TestCase):
             run_session_fiable(c, agent="a", messages="m", tentatives=0)
 
 
+class FauxClientKwargs:
+    """Capture les kwargs passés à run_session (pour vérifier le bornage)."""
+
+    def __init__(self, statut="completed"):
+        self.statut = statut
+        self.kwargs = None
+
+    def run_session(self, **kwargs):
+        self.kwargs = kwargs
+        return _resultat(self.statut)
+
+
+class TestBornesSession(unittest.TestCase):
+    def test_bornes_transmises_quand_fournies(self):
+        c = FauxClientKwargs()
+        run_session_fiable(c, agent="a", messages="m", max_steps=12, idle_timeout_s=90)
+        self.assertEqual(c.kwargs.get("max_steps"), 12)
+        self.assertEqual(c.kwargs.get("idle_timeout_s"), 90)
+
+    def test_bornes_absentes_par_defaut(self):
+        c = FauxClientKwargs()
+        run_session_fiable(c, agent="a", messages="m")
+        self.assertNotIn("max_steps", c.kwargs)
+        self.assertNotIn("idle_timeout_s", c.kwargs)
+
+    def test_max_steps_invalide(self):
+        c = FauxClientKwargs()
+        with self.assertRaises(ValueError):
+            run_session_fiable(c, agent="a", messages="m", max_steps=0)
+
+    def test_idle_timeout_invalide(self):
+        c = FauxClientKwargs()
+        with self.assertRaises(ValueError):
+            run_session_fiable(c, agent="a", messages="m", idle_timeout_s=0)
+
+
 class TestSilencieux(unittest.TestCase):
     def test_niveau_restaure_apres_le_bloc(self):
         lg = logging.getLogger("hai_agents_local")
