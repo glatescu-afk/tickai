@@ -158,22 +158,32 @@ def capacite_micro_teams(client: typing.Any, agent: typing.Any) -> Capacite:
         return str(data.get("action_effectuee", "Correction micro tentée."))
 
     def verifier(ticket: Ticket) -> Verification:
-        """Vérification INDÉPENDANTE = appel test Teams (session séparée, lecture seule).
+        """Vérification INDÉPENDANTE par RELECTURE D'ÉTAT (session séparée, lecture seule).
 
-        succès (ok=True) UNIQUEMENT si la voix est rejouée dans l'appel test.
+        Un agent computer-use ne peut pas « entendre » : on ne s'appuie donc pas sur
+        l'« appel test » Teams (de plus indisponible sur compte perso). On relit, dans
+        une session distincte, que le micro est maintenant CORRECTEMENT CONFIGURÉ —
+        même logique que la vérif par relecture du cas notifications (RB).
+        ok=True seulement si les trois points sont bons.
         """
         data = _session_json(client, agent, (
-            "Dans Microsoft Teams sur macOS, ouvre les Paramètres (menu « … » "
-            "Paramètres et plus, ou ta photo de profil en haut à droite > Paramètres "
-            "> Appareils), puis clique sur « Faire un appel test ». Parle quelques "
-            "secondes quand c'est demandé, puis écoute. SANS "
-            "modifier aucun réglage, indique si ta voix a bien été REJOUÉE. "
-            "voix_rejouee=true SEULEMENT si tu l'as explicitement entendue rejouée."
+            "Tu es technicien IT sur le Mac (macOS). Vérifie, SANS RIEN MODIFIER, que "
+            "le micro est maintenant correctement configuré pour Microsoft Teams, en "
+            "relisant dans l'ordre : "
+            "(a) dans Teams (menu « … » Paramètres et plus, ou photo de profil > "
+            "Paramètres > Appareils), un microphone PRÉCIS est sélectionné (pas "
+            "« Aucun » ni vide) et, si une barre de niveau d'entrée est visible, elle "
+            "n'est pas figée à zéro ; "
+            "(b) dans Réglages Système > Son > Entrée, le bon périphérique est choisi "
+            "et le volume d'entrée n'est pas à zéro ; "
+            "(c) dans Réglages Système > Confidentialité et sécurité > Microphone, "
+            "« Microsoft Teams » est bien AUTORISÉ (interrupteur activé). "
+            "micro_ok=true SEULEMENT si (a), (b) et (c) sont TOUS bons ; sinon false."
             + _CONSIGNE_ARRET
-            + _CONSIGNE_JSON.format(cles='{"voix_rejouee": true/false, "details": "..."}')
+            + _CONSIGNE_JSON.format(cles='{"micro_ok": true/false, "details": "..."}')
         ), max_steps=_MAX_STEPS_VERIF)
         return Verification(
-            ok=bool(data.get("voix_rejouee", False)),
+            ok=bool(data.get("micro_ok", False)),
             preuve=str(data.get("details", "")),
         )
 

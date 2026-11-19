@@ -40,11 +40,11 @@ class TestCapaciteMicroTeams(unittest.TestCase):
         self.assertIsNotNone(cap.diagnostiquer)
 
     def test_micro_corrige_et_verifie(self):
-        """Correction appliquée + appel test qui rejoue la voix -> RESOLU, vérifié."""
+        """Correction appliquée + relecture d'état qui confirme -> RESOLU, vérifié."""
         client = FauxClient([
             '{"action_effectuee": "Bon micro sélectionné dans Teams", '
             '"reglage_modifie": "Teams > Appareils > Micro", "message": "ok"}',
-            '{"voix_rejouee": true, "details": "voix rejouée dans l\'appel test"}',
+            '{"micro_ok": true, "details": "micro sélectionné, volume ok, Teams autorisé"}',
         ])
         capacites = {TypeDemande.REMEDIATION: capacite_micro_teams(client, "agent")}
         res = traiter_ticket(_ticket_micro(), capacites=capacites, journaliser=False)
@@ -52,11 +52,11 @@ class TestCapaciteMicroTeams(unittest.TestCase):
         self.assertTrue(res.verifie)
         self.assertTrue(res.intervention_agent)
 
-    def test_appel_test_echoue_non_verifie(self):
-        """Voix non rejouée -> NON_VERIFIE (jamais resolu sans vérification)."""
+    def test_verif_etat_echoue_non_verifie(self):
+        """Config micro toujours KO à la relecture -> NON_VERIFIE (jamais resolu sans vérif)."""
         client = FauxClient([
             '{"action_effectuee": "Autorisations micro Teams activées"}',
-            '{"voix_rejouee": false, "details": "rien entendu"}',
+            '{"micro_ok": false, "details": "Teams toujours non autorisé au micro"}',
         ])
         capacites = {TypeDemande.REMEDIATION: capacite_micro_teams(client, "agent")}
         res = traiter_ticket(_ticket_micro(), capacites=capacites, journaliser=False)
