@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { AlertTriangle, Check, Clock3, MessageSquareText, ScrollText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TicketCard } from '@/components/ticket-card'
-import { LevelBadge, StatusBadge } from '@/components/ticket-badges'
+import { LevelBadge, SupportStatusBadge } from '@/components/ticket-badges'
 import { createClient } from '@/lib/supabase/client'
 import { getTicketSummary, type Ticket, type TicketCardData } from '@/lib/types'
 
@@ -22,7 +22,7 @@ export function SupportTicketDetail({ initialTicket, initialMessages, initialJou
   const summary = getTicketSummary(ticket)
 
   async function updateStatus(status: 'reprise_humaine' | 'cloture') {
-    const prompt = status === 'cloture' ? 'Clôturer ce ticket ? Cette action mettra son statut à jour.' : 'Reprendre ce ticket en main ? Son statut passera à « reprise humaine ». '
+    const prompt = status === 'cloture' ? 'Clôturer ce ticket ? Cette action mettra son statut à jour.' : 'Reprendre ce ticket en main ? Il passera à « Pris en main ».'
     if (!window.confirm(prompt)) return
     setSaving(true)
     setError('')
@@ -39,7 +39,7 @@ export function SupportTicketDetail({ initialTicket, initialMessages, initialJou
   }
 
   return <div className="mt-6">
-    <div className="motion-enter mb-4 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-medium tracking-[0.14em] text-primary">DÉTAIL DU TICKET</p><h1 className="page-title-gradient mt-1 text-2xl font-semibold">{ticket.numero}</h1><p className="mt-1 text-xs text-muted-foreground">Créé le {formatDateTime(ticket.created_at)}</p></div><div className="flex items-center gap-2"><LevelBadge level={ticket.niveau} /><StatusBadge status={ticket.statut} /></div></div>
+    <div className="motion-enter mb-4 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-medium tracking-[0.14em] text-primary">DÉTAIL DU TICKET</p><h1 className="page-title-gradient mt-1 text-2xl font-semibold">{ticket.numero}</h1><p className="mt-1 text-xs text-muted-foreground">Créé le {formatDateTime(ticket.created_at)}</p></div><div className="flex items-center gap-2"><LevelBadge level={ticket.niveau} /><SupportStatusBadge status={ticket.statut} /></div></div>
     <div style={{ animationDelay: '40ms' }}><TicketCard ticket={ticket} readOnly showNiveau /></div>
     <section style={{ animationDelay: '50ms' }} className="motion-enter mt-4 rounded-2xl border border-slate-200/60 bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" aria-labelledby="diagnostic-heading"><div className="flex items-center gap-2"><AlertTriangle aria-hidden="true" className="size-4 text-primary" /><h2 id="diagnostic-heading" className="font-semibold text-blue-900">Pré-diagnostic du chatbot</h2></div><p className="mt-3 whitespace-pre-line text-sm leading-6 text-foreground">{ticket.diagnostic?.trim() || 'Aucun pré-diagnostic renseigné.'}</p></section>
     {String(ticket.niveau) === '1' && (ticket.resultat || ticket.preuve) ? <section style={{ animationDelay: '100ms' }} className="motion-enter mt-4 rounded-2xl border border-slate-200/60 bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" aria-labelledby="agent-result-heading"><div className="flex items-center gap-2"><Check aria-hidden="true" className="size-4 text-primary" /><h2 id="agent-result-heading" className="font-semibold text-blue-900">Résultat de l’agent</h2></div>{ticket.resultat ? <p className="mt-3 whitespace-pre-line text-sm leading-6 text-foreground">{ticket.resultat}</p> : null}{ticket.preuve ? <p className="mt-3 whitespace-pre-line border-t border-border pt-3 text-sm leading-6 text-muted-foreground">{ticket.preuve}</p> : null}</section> : null}

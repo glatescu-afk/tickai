@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import Link from 'next/link'
 import useSWR from 'swr'
 import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle2, Inbox, Layers, Search, Send, Sparkles, Tag, TicketCheck } from 'lucide-react'
-import { LevelBadge, StatusBadge } from '@/components/ticket-badges'
+import { LevelBadge, SupportStatusBadge } from '@/components/ticket-badges'
 import { createClient } from '@/lib/supabase/client'
 import { getTicketSummary, type Profile, type Ticket } from '@/lib/types'
 
@@ -12,7 +12,7 @@ type Category = { id: string | number; nom: string }
 type SupportTicket = Ticket & { collaborateur: Profile | null; categorie: string | null }
 const tabs = [
   { id: 'action', label: 'À traiter', statuses: ['transmis_support', 'escalade', 'reprise_humaine'], inactiveClass: 'border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C]', activeClass: 'border-2 border-[#EA580C] bg-[#FFEDD5] text-[#C2410C]' },
-  { id: 'active', label: 'En cours', statuses: ['valide', 'en_cours'], inactiveClass: 'border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]', activeClass: 'border-2 border-[#1D4ED8] bg-[#DBEAFE] text-[#1D4ED8]' },
+  { id: 'active', label: 'En cours', statuses: ['valide', 'en_cours', 'en_attente_consentement'], inactiveClass: 'border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]', activeClass: 'border-2 border-[#1D4ED8] bg-[#DBEAFE] text-[#1D4ED8]' },
   { id: 'resolved', label: 'Résolus', statuses: ['resolu', 'cloture'], inactiveClass: 'border-[#BBF7D0] bg-[#F0FDF4] text-[#15803D]', activeClass: 'border-2 border-[#15803D] bg-[#DCFCE7] text-[#15803D]' },
   { id: 'all', label: 'Tous', statuses: [], inactiveClass: 'border-[#E2E8F0] bg-[#F8FAFC] text-[#334155]', activeClass: 'border-2 border-[#334155] bg-[#E2E8F0] text-[#334155]' },
 ] as const
@@ -29,7 +29,9 @@ export function SupportDashboard({ initialTickets, profiles, categories }: { ini
     if (error) throw error
     return (data ?? []) as Ticket[]
   }, [supabase])
-  const { data: tickets = initialTickets, error, mutate } = useSWR('support-demandes', fetcher, { fallbackData: initialTickets, revalidateOnFocus: true })
+  const { data: allTickets = initialTickets, error, mutate } = useSWR('support-demandes', fetcher, { fallbackData: initialTickets, revalidateOnFocus: true })
+  // Les demandes pas encore envoyées par le collaborateur ne concernent pas le support.
+  const tickets = allTickets.filter((ticket) => !['brouillon', 'en_clarification'].includes(ticket.statut ?? 'brouillon'))
   const profileMap = useMemo(() => new Map(profiles.map((profile) => [profile.id, profile])), [profiles])
   const categoryMap = useMemo(() => new Map(categories.map((item) => [String(item.id), item.nom])), [categories])
   const rows: SupportTicket[] = tickets.map((ticket) => ({ ...ticket, collaborateur: profileMap.get(ticket.user_id) ?? null, categorie: ticket.categorie_id ? categoryMap.get(String(ticket.categorie_id)) ?? null : null }))
@@ -94,7 +96,7 @@ export function SupportDashboard({ initialTickets, profiles, categories }: { ini
         <span className="col-span-2 min-w-0 text-xs font-medium text-foreground xl:col-span-1"><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Demande</span><span className="block truncate">{firstSentence(getTicketSummary(ticket))}</span></span>
         <span className="text-xs text-muted-foreground"><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Catégorie</span>{ticket.categorie || '—'}</span>
         <span><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Niveau</span><LevelBadge level={ticket.niveau} /></span>
-        <span><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Statut</span><StatusBadge status={ticket.statut} /></span>
+        <span><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Statut</span><SupportStatusBadge status={ticket.statut} /></span>
         <span className="text-xs text-muted-foreground"><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Créée le</span>{formatDate(ticket.created_at)}</span>
       </Link></li>)}</ul>
     </div> : <div className="motion-enter flex min-h-56 flex-col items-center justify-center rounded-2xl border border-slate-200/60 bg-card px-6 py-10 text-center shadow-sm"><span className="flex size-12 items-center justify-center rounded-full bg-primary/5 text-primary/70"><Inbox aria-hidden="true" className="size-5" /></span><p className="mt-4 text-sm font-medium text-foreground">Aucune demande ici pour le moment</p></div>}
