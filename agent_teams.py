@@ -193,3 +193,69 @@ def capacite_micro_teams(client: typing.Any, agent: typing.Any) -> Capacite:
         requiert_consentement=False,
         diagnostiquer=diagnostiquer,
     )
+
+
+# ---------------------------------------------------------------------------
+# Notifications Teams coupées (macOS, réglage OS) — 2e cas agent
+# ---------------------------------------------------------------------------
+def capacite_notifications_teams(client: typing.Any, agent: typing.Any) -> Capacite:
+    """Capacité « notifications Teams coupées » : réactive l'autorisation de
+    notifications de Microsoft Teams dans les Réglages Système macOS, puis relit
+    l'état du toggle.
+
+    Reprend le flux validé en réel (bascule OFF -> ON de « Autoriser les
+    notifications »). Vérification = relecture d'état indépendante (session
+    séparée). `requiert_consentement=False` : le consentement est géré en amont
+    (case front + gate n8n), comme pour la capacité micro.
+    """
+
+    def diagnostiquer(ticket: Ticket) -> str:
+        """Constat LECTURE SEULE de l'état du toggle de notifications (aucune modif)."""
+        data = _session_json(client, agent, (
+            "Tu es technicien IT sur le Mac (macOS). Ouvre Réglages Système > "
+            "Notifications > Microsoft Teams. SANS RIEN MODIFIER, observe l'état de "
+            "l'interrupteur « Autoriser les notifications » et décris ce que tu vois."
+            + _CONSIGNE_ARRET
+            + _CONSIGNE_JSON.format(cles='{"notifications_actives": true/false, "details": "..."}')
+        ), max_steps=_MAX_STEPS_CONSTAT)
+        actives = bool(data.get("notifications_actives", False))
+        constat = str(data.get("details", ""))
+        return (f"Notifications déjà activées pour Microsoft Teams ({constat})." if actives
+                else f"Notifications désactivées pour Microsoft Teams. Correction : les activer. ({constat})")
+
+    def agir(ticket: Ticket) -> str:
+        """Réactive l'autorisation de notifications de Teams (et rien d'autre)."""
+        data = _session_json(client, agent, (
+            f"{MESSAGE_PRISE_EN_MAIN} "
+            "Tu es technicien IT sur le Mac (macOS). Ouvre Réglages Système "
+            "(menu Pomme > Réglages Système, ou Spotlight Cmd+Espace) > Notifications "
+            "> Microsoft Teams. Si l'interrupteur « Autoriser les notifications » est "
+            "DÉSACTIVÉ, ACTIVE-le. Ne modifie AUCUN autre réglage ni AUCUNE autre "
+            "application que Microsoft Teams. "
+            f"{_GARDE_FOUS}"
+            + _CONSIGNE_ARRET
+            + _CONSIGNE_JSON.format(cles='{"action_effectuee": "...", "etat_final": "ON/OFF"}')
+        ), max_steps=_MAX_STEPS_CORRECTION)
+        return str(data.get("action_effectuee", "Réactivation des notifications tentée."))
+
+    def verifier(ticket: Ticket) -> Verification:
+        """Vérification INDÉPENDANTE par relecture d'état (session séparée, lecture seule)."""
+        data = _session_json(client, agent, (
+            "Tu es technicien IT sur le Mac (macOS). Ouvre Réglages Système > "
+            "Notifications > Microsoft Teams. SANS RIEN MODIFIER, indique si "
+            "l'interrupteur « Autoriser les notifications » est ACTIVÉ. "
+            "notifications_actives=true SEULEMENT si tu le vois explicitement en position activée."
+            + _CONSIGNE_ARRET
+            + _CONSIGNE_JSON.format(cles='{"notifications_actives": true/false, "details": "..."}')
+        ), max_steps=_MAX_STEPS_VERIF)
+        return Verification(
+            ok=bool(data.get("notifications_actives", False)),
+            preuve=str(data.get("details", "")),
+        )
+
+    return Capacite(
+        agir=agir,
+        verifier=verifier,
+        requiert_consentement=False,
+        diagnostiquer=diagnostiquer,
+    )

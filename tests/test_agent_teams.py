@@ -7,7 +7,7 @@ Lancer :  python -m unittest discover -s tests
 import types
 import unittest
 
-from agent_teams import capacite_micro_teams
+from agent_teams import capacite_micro_teams, capacite_notifications_teams
 from tickai_core.engine import Issue, Ticket, TypeDemande, traiter_ticket
 
 
@@ -30,6 +30,42 @@ def _ticket_micro() -> Ticket:
         application="Microsoft Teams",
         motif="micro HS en réunion",
     )
+
+
+def _ticket_notifs() -> Ticket:
+    return Ticket(
+        id="TCK-NOTIF",
+        demandeur_email="test@exemple.fr",
+        type=TypeDemande.REMEDIATION,
+        action="reactiver_notifications",
+        application="Microsoft Teams",
+        motif="plus de notifications Teams",
+    )
+
+
+class TestCapaciteNotificationsTeams(unittest.TestCase):
+    def test_notifs_reactivees_et_verifiees(self):
+        """Réactivation + relecture qui confirme le toggle ON -> RESOLU, vérifié."""
+        client = FauxClient([
+            '{"action_effectuee": "Autorisation notifications Teams réactivée", "etat_final": "ON"}',
+            '{"notifications_actives": true, "details": "interrupteur ON"}',
+        ])
+        capacites = {TypeDemande.REMEDIATION: capacite_notifications_teams(client, "agent")}
+        res = traiter_ticket(_ticket_notifs(), capacites=capacites, journaliser=False)
+        self.assertIs(res.issue, Issue.RESOLU)
+        self.assertTrue(res.verifie)
+        self.assertTrue(res.intervention_agent)
+
+    def test_notifs_toujours_off_non_verifie(self):
+        """Toggle toujours OFF à la relecture -> NON_VERIFIE (jamais resolu sans vérif)."""
+        client = FauxClient([
+            '{"action_effectuee": "tentative de réactivation"}',
+            '{"notifications_actives": false, "details": "toujours OFF"}',
+        ])
+        capacites = {TypeDemande.REMEDIATION: capacite_notifications_teams(client, "agent")}
+        res = traiter_ticket(_ticket_notifs(), capacites=capacites, journaliser=False)
+        self.assertIs(res.issue, Issue.NON_VERIFIE)
+        self.assertFalse(res.verifie)
 
 
 class TestCapaciteMicroTeams(unittest.TestCase):

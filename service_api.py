@@ -48,7 +48,7 @@ from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI
 from pydantic import BaseModel
 
-from agent_teams import capacite_micro_teams
+from agent_teams import capacite_micro_teams, capacite_notifications_teams
 from tickai_core.engine import Issue, Ticket, TypeDemande, traiter_ticket
 
 load_dotenv()
@@ -64,9 +64,12 @@ SERVED_DESKTOP = os.getenv("HAI_SERVED_DESKTOP", "1").strip().lower() not in ("0
 # Session de repli pour un test mono-poste (le vrai flux la reçoit dans /run).
 SESSION_ID_DEFAUT = os.getenv("HAI_DESKTOP_SESSION_ID", "").strip()
 
-# Cas de démo figé : le niveau 1 agent = micro HS dans Teams (RB-20).
+# Cas agent niveau 1 (RB-20) : micro HS, OU notifications coupées, dans Teams.
 ACTION_MICRO = "corriger_micro_teams"
+ACTION_NOTIFS = "reactiver_notifications"
 APPLICATION = "Microsoft Teams"
+# categorie_id Supabase de « Notifications Teams » -> capacité notifications.
+CATEGORIE_NOTIFS = 1
 
 app = FastAPI(title="Tick.AI — service agent", version="0.2.0")
 
@@ -147,6 +150,8 @@ class RunRequest(BaseModel):
     # Machine cible (served desktop) : session imprimée par `holo local desktop`.
     # Vide => on retombe sur HAI_DESKTOP_SESSION_ID (test mono-poste).
     session_id: str = ""
+    # Catégorie Supabase : choisit la capacité (1 = notifications, sinon micro).
+    categorie_id: typing.Optional[int] = None
     # Optionnel : enrichi depuis Supabase côté n8n si besoin.
     demandeur_email: str = "inconnu@tickai.local"
 
@@ -184,12 +189,18 @@ def executer_agent(req: RunRequest) -> None:
 
         client = _client_pret()
         agent = _agent_pour_session(client, session_id)
-        capacites = {TypeDemande.REMEDIATION: capacite_micro_teams(client, agent)}
+        # Choix de la capacité selon la catégorie du ticket (notifications vs micro).
+        if req.categorie_id == CATEGORIE_NOTIFS:
+            capacite, action = capacite_notifications_teams(client, agent), ACTION_NOTIFS
+        else:
+            capacite, action = capacite_micro_teams(client, agent), ACTION_MICRO
+        logger.info("capacité « %s » (categorie_id=%s) pour %s", action, req.categorie_id, req.demande_id)
+        capacites = {TypeDemande.REMEDIATION: capacite}
         ticket = Ticket(
             id=req.demande_id,
             demandeur_email=req.demandeur_email,
             type=TypeDemande.REMEDIATION,
-            action=ACTION_MICRO,
+            action=action,
             application=APPLICATION,
             motif=req.description,
         )
