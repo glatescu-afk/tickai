@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import useSWR from 'swr'
-import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle2, Inbox, Layers, Search, Send, Sparkles, TicketCheck } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle2, Inbox, Layers, Search, Gauge, Send, TicketCheck } from 'lucide-react'
 import { LevelBadge, SupportStatusBadge } from '@/components/ticket-badges'
 import { createClient } from '@/lib/supabase/client'
 import { getTicketSummary, type Profile, type Ticket } from '@/lib/types'
@@ -56,8 +56,11 @@ export function SupportDashboard({ initialTickets, profiles, categories }: { ini
   const open = tickets.filter((ticket) => !['resolu', 'cloture'].includes(ticket.statut ?? ''))
   const resolved = tickets.filter((ticket) => ticket.statut === 'resolu')
   const transferred = tickets.filter((ticket) => ['transmis_support', 'escalade'].includes(ticket.statut ?? ''))
-  const levelOneValidated = tickets.filter((ticket) => String(ticket.niveau) === '1' && ['valide', 'en_cours', 'resolu', 'cloture'].includes(ticket.statut ?? ''))
-  const resolutionRate = levelOneValidated.length ? Math.round(resolved.filter((ticket) => String(ticket.niveau) === '1').length / levelOneValidated.length * 100) : 0
+  // Taux de résolution : parmi les tickets niveau 1 que l'agent a terminés (réussis ou rendus à un humain), combien il a résolus.
+  // Les tickets encore en cours ne comptent pas, ils n'ont pas encore de résultat.
+  const levelOneFinished = tickets.filter((ticket) => String(ticket.niveau) === '1' && ['resolu', 'escalade', 'transmis_support', 'reprise_humaine', 'cloture'].includes(ticket.statut ?? ''))
+  const levelOneResolved = levelOneFinished.filter((ticket) => ticket.statut === 'resolu')
+  const resolutionRate = levelOneFinished.length ? Math.round(levelOneResolved.length / levelOneFinished.length * 100) : null
 
   return <section className="pb-16 pt-8 sm:pt-10">
     <div className="motion-enter mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="inline-flex items-center gap-2 text-xs font-medium tracking-[0.15em] text-primary"><TicketCheck aria-hidden="true" className="size-4" />ESPACE ENTREPRISE</p><h1 className="page-title-gradient mt-2 text-3xl font-semibold tracking-tight">Tableau de bord support</h1><p className="mt-2 text-sm text-muted-foreground">Vue opérationnelle des demandes et de leur traitement.</p></div><span className="rounded-full border border-blue-200 bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-800 shadow-sm">{tickets.length} ticket{tickets.length === 1 ? '' : 's'} au total</span></div>
@@ -65,7 +68,7 @@ export function SupportDashboard({ initialTickets, profiles, categories }: { ini
       <Metric title="Tickets ouverts" value={open.length} icon={<Inbox aria-hidden="true" className="size-5" />} accentClassName="bg-primary/10 text-primary" />
       <Metric title="Résolus par l’agent" value={resolved.length} icon={<CheckCircle2 aria-hidden="true" className="size-5" />} accentClassName="bg-status-success/10 text-status-success" />
       <Metric title="Transmis au support" value={transferred.length} icon={<Send aria-hidden="true" className="size-5" />} accentClassName="bg-status-warning/10 text-status-warning" />
-      <Metric title="Résolution automatique" value={`${resolutionRate}%`} icon={<Sparkles aria-hidden="true" className="size-5" />} accentClassName="bg-violet-100 text-violet-700" />
+      <Metric title="Taux de résolution (niveau 1)" value={resolutionRate === null ? '—' : `${resolutionRate}%`} detail={`${levelOneResolved.length} sur ${levelOneFinished.length} ticket${levelOneFinished.length === 1 ? '' : 's'} traité${levelOneFinished.length === 1 ? '' : 's'}`} icon={<Gauge aria-hidden="true" className="size-5" />} accentClassName="bg-violet-100 text-violet-700" />
     </div>
     <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="Filtrer les tickets">
       {tabs.map((tab, index) => {
@@ -99,8 +102,8 @@ export function SupportDashboard({ initialTickets, profiles, categories }: { ini
   </section>
 }
 
-function Metric({ title, value, icon, accentClassName }: { title: string; value: string | number; icon: ReactNode; accentClassName: string }) {
-  return <div className="motion-enter animate-float rounded-2xl border border-slate-200/60 bg-card px-4 py-4 shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none"><div className="flex items-start justify-between gap-3"><p className="text-xs leading-5 text-muted-foreground">{title}</p><span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${accentClassName}`}>{icon}</span></div><p className="mt-3 text-3xl font-semibold tabular-nums text-blue-900"><span key={String(value)} className="count-pop">{value}</span></p></div>
+function Metric({ title, value, detail, icon, accentClassName }: { title: string; value: string | number; detail?: string; icon: ReactNode; accentClassName: string }) {
+  return <div className="motion-enter animate-float rounded-2xl border border-slate-200/60 bg-card px-4 py-4 shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none"><div className="flex items-start justify-between gap-3"><p className="text-xs leading-5 text-muted-foreground">{title}</p><span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${accentClassName}`}>{icon}</span></div><p className="mt-3 text-3xl font-semibold tabular-nums text-blue-900"><span key={String(value)} className="count-pop">{value}</span></p>{detail ? <p className="mt-1 text-[11px] text-muted-foreground">{detail}</p> : null}</div>
 }
 
 function firstSentence(text: string) {
