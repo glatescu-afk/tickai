@@ -10,10 +10,16 @@ import { getTicketSummary, type Profile, type Ticket } from '@/lib/types'
 
 type Category = { id: string | number; nom: string }
 type SupportTicket = Ticket & { collaborateur: Profile | null; categorie: string | null }
+const priorityPresentation = {
+  bloquant: { label: 'Bloquant', className: 'bg-red-500' },
+  moyen: { label: 'Moyen', className: 'bg-orange-500' },
+  faible: { label: 'Faible', className: 'bg-gray-400' },
+} satisfies Record<NonNullable<Ticket['priorite']>, { label: string; className: string }>
+
 const tabs = [
   { id: 'action', label: 'À traiter', statuses: ['transmis_support', 'escalade', 'reprise_humaine'], inactiveClass: 'border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C]', activeClass: 'border-2 border-[#EA580C] bg-[#FFEDD5] text-[#C2410C]' },
   { id: 'active', label: 'En cours', statuses: ['valide', 'en_cours', 'en_attente_consentement'], inactiveClass: 'border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]', activeClass: 'border-2 border-[#1D4ED8] bg-[#DBEAFE] text-[#1D4ED8]' },
-  { id: 'resolved', label: 'Résolus', statuses: ['resolu', 'cloture'], inactiveClass: 'border-[#BBF7D0] bg-[#F0FDF4] text-[#15803D]', activeClass: 'border-2 border-[#15803D] bg-[#DCFCE7] text-[#15803D]' },
+  { id: 'resolved', label: "Auto-résolus par l'agent", statuses: ['resolu', 'cloture'], inactiveClass: 'border-[#BBF7D0] bg-[#F0FDF4] text-[#15803D]', activeClass: 'border-2 border-[#15803D] bg-[#DCFCE7] text-[#15803D]' },
   { id: 'all', label: 'Tous', statuses: [], inactiveClass: 'border-[#E2E8F0] bg-[#F8FAFC] text-[#334155]', activeClass: 'border-2 border-[#334155] bg-[#E2E8F0] text-[#334155]' },
 ] as const
 
@@ -24,7 +30,7 @@ export function SupportDashboard({ initialTickets, profiles, categories }: { ini
   const [newestFirst, setNewestFirst] = useState(true)
   const supabase = useMemo(() => createClient(), [])
   const fetcher = useCallback(async () => {
-    const { data, error } = await supabase.from('demandes').select('id, numero, user_id, description_initiale, resume_propose, description_finale, categorie_id, niveau, statut, resultat, preuve, diagnostic, created_at, updated_at').order('created_at', { ascending: false })
+    const { data, error } = await supabase.from('demandes').select('id, numero, user_id, description_initiale, resume_propose, description_finale, categorie_id, niveau, priorite, statut, resultat, preuve, diagnostic, created_at, updated_at').order('created_at', { ascending: false })
     if (error) throw error
     return (data ?? []) as Ticket[]
   }, [supabase])
@@ -91,7 +97,7 @@ export function SupportDashboard({ initialTickets, profiles, categories }: { ini
     {error ? <p role="alert" className="rounded-2xl border border-status-danger/20 bg-status-danger/5 p-4 text-sm text-status-danger shadow-sm">Impossible de charger les tickets. Actualisez la page pour réessayer.</p> : filteredRows.length ? <div className="space-y-3">
       <div className="hidden grid-cols-[minmax(7rem,0.8fr)_minmax(10rem,1.4fr)_minmax(14rem,2.4fr)_5rem_9rem_8rem] gap-3 rounded-2xl border border-slate-200/60 bg-card/80 px-4 py-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground shadow-sm xl:grid"><span>Numéro</span><span>Collaborateur</span><span>Demande</span><span>Niveau</span><span>Statut</span><button type="button" onClick={toggleDateSort} title={`Trier ${sortDirectionLabel}`} aria-label={`Trier ${sortDirectionLabel}`} className="inline-flex items-center gap-1.5 text-left hover:text-foreground">Créée le{newestFirst ? <ArrowDown aria-hidden="true" className="size-3.5 text-blue-600" /> : <ArrowUp aria-hidden="true" className="size-3.5 text-blue-600" />}</button></div>
       <ul className="grid gap-3">{filteredRows.map((ticket, index) => <li key={ticket.id}><Link href={`/support/${ticket.id}`} style={{ animationDelay: `${Math.min(index * 50, 300)}ms` }} className="motion-enter grid grid-cols-2 gap-x-4 gap-y-3 rounded-2xl border border-slate-200/60 bg-card px-4 py-4 text-sm shadow-[0_2px_8px_rgba(37,99,235,0.12)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(37,99,235,0.18)] motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary xl:grid-cols-[minmax(7rem,0.8fr)_minmax(10rem,1.4fr)_minmax(14rem,2.4fr)_5rem_9rem_8rem] xl:items-center">
-        <span className="font-mono text-xs font-medium text-primary"><span className="mb-1 block font-sans text-[10px] uppercase text-muted-foreground xl:hidden">Numéro</span>{ticket.numero}</span>
+        <span className="font-mono text-xs font-medium text-primary"><span className="mb-1 block font-sans text-[10px] uppercase text-muted-foreground xl:hidden">Numéro</span><span className="inline-flex items-center gap-1.5"><PriorityDot priority={ticket.priorite} status={ticket.statut} />{ticket.numero}</span></span>
         <span className="min-w-0 text-xs text-foreground"><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Collaborateur</span><span className="block truncate font-medium">{[ticket.collaborateur?.prenom, ticket.collaborateur?.nom].filter(Boolean).join(' ') || 'Profil indisponible'}</span><span className="block truncate text-muted-foreground">{ticket.collaborateur?.identifiant_employe || '—'}</span></span>
         <span className="col-span-2 min-w-0 text-xs font-medium text-foreground xl:col-span-1"><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Demande</span><span className="block truncate">{firstSentence(getTicketSummary(ticket))}</span></span>
         <span><span className="mb-1 block text-[10px] uppercase text-muted-foreground xl:hidden">Niveau</span><LevelBadge level={ticket.niveau} /></span>
@@ -100,6 +106,24 @@ export function SupportDashboard({ initialTickets, profiles, categories }: { ini
       </Link></li>)}</ul>
     </div> : <div className="motion-enter flex min-h-56 flex-col items-center justify-center rounded-2xl border border-slate-200/60 bg-card px-6 py-10 text-center shadow-sm"><span className="flex size-12 items-center justify-center rounded-full bg-primary/5 text-primary/70"><Inbox aria-hidden="true" className="size-5" /></span><p className="mt-4 text-sm font-medium text-foreground">Aucune demande ici pour le moment</p></div>}
   </section>
+}
+
+function PriorityDot({ priority, status }: { priority: Ticket['priorite']; status: string | null }) {
+  const presentation = priority ? priorityPresentation[priority] : null
+  const visible = Boolean(presentation && (status === 'transmis_support' || status === 'escalade'))
+
+  return (
+    <span aria-hidden={!visible} className="inline-flex size-2 shrink-0">
+      {visible && presentation ? (
+        <span
+          role="img"
+          aria-label={`Priorité : ${presentation.label}`}
+          title={`Priorité : ${presentation.label}`}
+          className={`size-2 rounded-full ${presentation.className}`}
+        />
+      ) : null}
+    </span>
+  )
 }
 
 function Metric({ title, value, detail, icon, accentClassName }: { title: string; value: string | number; detail?: string; icon: ReactNode; accentClassName: string }) {

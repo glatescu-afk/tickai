@@ -7,7 +7,7 @@ import { SupportDashboard } from '@/components/support-dashboard'
 import { createClient } from '@/lib/supabase/server'
 import type { Profile, Ticket } from '@/lib/types'
 
-const ticketColumns = 'id, numero, user_id, description_initiale, resume_propose, description_finale, categorie_id, niveau, statut, resultat, preuve, diagnostic, created_at, updated_at'
+const ticketColumns = 'id, numero, user_id, description_initiale, resume_propose, description_finale, categorie_id, niveau, priorite, statut, resultat, preuve, diagnostic, created_at, updated_at'
 
 export const metadata: Metadata = { title: 'Tableau de bord support' }
 

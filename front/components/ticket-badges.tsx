@@ -28,8 +28,8 @@ export function StatusBadge({ status }: { status: string | null }) {
 
 // Côté support : 4 étiquettes simples (les statuts Supabase restent inchangés).
 const supportStatus: Record<string, { label: string; className: string; note?: string }> = {
-  transmis_support: { label: 'À prendre', className: 'border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C]' },
-  escalade: { label: 'À prendre', className: 'border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C]', note: 'L’agent n’a pas réussi' },
+  transmis_support: { label: 'Prendre en charge', className: 'border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C]' },
+  escalade: { label: 'Prendre en charge', className: 'border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C]', note: 'L’agent n’a pas réussi' },
   reprise_humaine: { label: 'Pris en main', className: 'border-[#DDD6FE] bg-[#F5F3FF] text-[#6D28D9]' },
   valide: { label: 'Agent en cours', className: 'border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]' },
   en_cours: { label: 'Agent en cours', className: 'border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]' },

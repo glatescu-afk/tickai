@@ -21,6 +21,7 @@ export type Ticket = {
   description_finale: string | null
   categorie_id: string | number | null
   niveau: 1 | 2
+  priorite?: 'bloquant' | 'moyen' | 'faible' | null
   statut: string
   resultat: string | null
   preuve: string | null
