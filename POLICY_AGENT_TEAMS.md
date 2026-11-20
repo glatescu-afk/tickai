@@ -1,7 +1,7 @@
 # Policy — Agent Teams « micro HS en réunion » (RB-20)
 
 > **Statut : brouillon v1** — à relire avant câblage dans `agent_teams.py`.
-> Environnement cible : **poste Windows desktop** piloté par l'agent H Company (modèles *Holo*).
+> ⚠️ Document de conception rédigé pour Windows. L'agent de la démo tourne sur **macOS** : les règles réellement appliquées sont dans `agent_teams.py` et `tickai_core/policy.py`.
 > Périmètre : **un seul runbook, RB-20 « Son ou micro pendant une réunion Teams »**. Aucune action hors de ce runbook.
 
 Cette policy est la traduction opérationnelle, pour notre cas de démo, de trois documents de référence :
